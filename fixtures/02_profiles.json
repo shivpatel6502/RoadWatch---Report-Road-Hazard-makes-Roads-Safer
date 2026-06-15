@@ -1,0 +1,67 @@
+[
+  {
+    "model": "reports.profile",
+    "pk": 1,
+    "fields": {
+      "user": 1,
+      "role": "super_admin",
+      "city": "Windsor",
+      "avatar": "",
+      "bio": "Platform super administrator. Oversees all cities and accounts.",
+      "phone": "519-000-0001",
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "reports.profile",
+    "pk": 2,
+    "fields": {
+      "user": 2,
+      "role": "city_admin",
+      "city": "Windsor",
+      "avatar": "",
+      "bio": "City of Windsor road infrastructure administrator.",
+      "phone": "519-255-6100",
+      "created_at": "2026-01-05T08:00:00Z"
+    }
+  },
+  {
+    "model": "reports.profile",
+    "pk": 3,
+    "fields": {
+      "user": 3,
+      "role": "city_admin",
+      "city": "Toronto",
+      "avatar": "",
+      "bio": "City of Toronto transportation services administrator.",
+      "phone": "416-392-6000",
+      "created_at": "2026-01-06T08:00:00Z"
+    }
+  },
+  {
+    "model": "reports.profile",
+    "pk": 4,
+    "fields": {
+      "user": 4,
+      "role": "citizen",
+      "city": "Windsor",
+      "avatar": "",
+      "bio": "Windsor resident and active road safety community member.",
+      "phone": "519-987-4321",
+      "created_at": "2026-01-10T09:00:00Z"
+    }
+  },
+  {
+    "model": "reports.profile",
+    "pk": 5,
+    "fields": {
+      "user": 5,
+      "role": "citizen",
+      "city": "Toronto",
+      "avatar": "",
+      "bio": "Toronto resident reporting infrastructure issues in the east end.",
+      "phone": "416-555-0199",
+      "created_at": "2026-01-12T10:00:00Z"
+    }
+  }
+]
