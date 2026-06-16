@@ -1,0 +1,137 @@
+[
+  {
+    "model": "reports.aiinsight",
+    "pk": 1,
+    "fields": {
+      "report": 1,
+      "severity_score": 8,
+      "is_duplicate_of": null,
+      "raw_response": {
+        "stub": true,
+        "note": "Placeholder score — real LLM scoring wired in Phase 2",
+        "factors": ["pothole size >30cm", "high-traffic street", "swerving secondary hazard"]
+      },
+      "computed_at": "2026-06-01T09:31:00Z"
+    }
+  },
+  {
+    "model": "reports.aiinsight",
+    "pk": 2,
+    "fields": {
+      "report": 2,
+      "severity_score": 9,
+      "is_duplicate_of": null,
+      "raw_response": {
+        "stub": true,
+        "note": "Placeholder score — real LLM scoring wired in Phase 2",
+        "factors": ["missing traffic control device", "intersection with no visibility", "night hazard"]
+      },
+      "computed_at": "2026-06-03T11:01:00Z"
+    }
+  },
+  {
+    "model": "reports.aiinsight",
+    "pk": 3,
+    "fields": {
+      "report": 4,
+      "severity_score": 10,
+      "is_duplicate_of": null,
+      "raw_response": {
+        "stub": true,
+        "note": "Placeholder score — real LLM scoring wired in Phase 2",
+        "factors": ["structural collapse risk", "major arterial road", "vehicle lane affected"]
+      },
+      "computed_at": "2026-06-08T07:46:00Z"
+    }
+  },
+  {
+    "model": "reports.aiinsight",
+    "pk": 4,
+    "fields": {
+      "report": 9,
+      "severity_score": 4,
+      "is_duplicate_of": 1,
+      "raw_response": {
+        "stub": true,
+        "note": "Duplicate detection stub — likely duplicate of Report #1",
+        "similarity_score": 0.91,
+        "distance_metres": 28.4
+      },
+      "computed_at": "2026-06-20T10:01:00Z"
+    }
+  },
+  {
+    "model": "reports.aiinsight",
+    "pk": 5,
+    "fields": {
+      "report": 7,
+      "severity_score": 8,
+      "is_duplicate_of": null,
+      "raw_response": {
+        "stub": true,
+        "note": "Placeholder score — real LLM scoring wired in Phase 2",
+        "factors": ["full lane blocked", "high-traffic area", "reported cyclist near-falls"]
+      },
+      "computed_at": "2026-06-14T08:01:00Z"
+    }
+  },
+  {
+    "model": "reports.aiinsight",
+    "pk": 6,
+    "fields": {
+      "report": 8,
+      "severity_score": 9,
+      "is_duplicate_of": null,
+      "raw_response": {
+        "stub": true,
+        "note": "Placeholder score — real LLM scoring wired in Phase 2",
+        "factors": ["highway guardrail failure", "expressway speed environment", "fall-risk geometry"]
+      },
+      "computed_at": "2026-06-18T07:01:00Z"
+    }
+  },
+  {
+    "model": "reports.notification",
+    "pk": 1,
+    "fields": {
+      "user": 4,
+      "report": 1,
+      "message": "Your report \"Large Pothole on Wyandotte St E\" has been updated to status: In Progress.",
+      "is_read": true,
+      "created_at": "2026-06-10T14:00:00Z"
+    }
+  },
+  {
+    "model": "reports.notification",
+    "pk": 2,
+    "fields": {
+      "user": 4,
+      "report": 4,
+      "message": "Your report \"Road Sinkhole Developing on Lauzon Pkwy\" has been updated to status: Pending Verification.",
+      "is_read": false,
+      "created_at": "2026-06-15T12:00:00Z"
+    }
+  },
+  {
+    "model": "reports.notification",
+    "pk": 3,
+    "fields": {
+      "user": 4,
+      "report": 10,
+      "message": "Your report \"Fixed: Cracked Sidewalk on Ouellette Ave\" has been updated to status: Fixed. Thank you for making Windsor safer!",
+      "is_read": true,
+      "created_at": "2026-06-10T09:00:00Z"
+    }
+  },
+  {
+    "model": "reports.notification",
+    "pk": 4,
+    "fields": {
+      "user": 5,
+      "report": 8,
+      "message": "An update was posted on a report you follow: \"Damaged Guardrail on Gardiner Expressway Ramp\" is now In Progress.",
+      "is_read": false,
+      "created_at": "2026-06-20T11:00:00Z"
+    }
+  }
+]

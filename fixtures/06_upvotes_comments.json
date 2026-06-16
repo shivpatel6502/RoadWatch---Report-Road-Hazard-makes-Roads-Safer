@@ -1,0 +1,142 @@
+[
+  {
+    "model": "reports.upvote",
+    "pk": 1,
+    "fields": {
+      "report": 1,
+      "user": 5,
+      "created_at": "2026-06-02T10:00:00Z"
+    }
+  },
+  {
+    "model": "reports.upvote",
+    "pk": 2,
+    "fields": {
+      "report": 1,
+      "user": 1,
+      "created_at": "2026-06-02T11:00:00Z"
+    }
+  },
+  {
+    "model": "reports.upvote",
+    "pk": 3,
+    "fields": {
+      "report": 2,
+      "user": 5,
+      "created_at": "2026-06-04T08:00:00Z"
+    }
+  },
+  {
+    "model": "reports.upvote",
+    "pk": 4,
+    "fields": {
+      "report": 4,
+      "user": 5,
+      "created_at": "2026-06-09T09:00:00Z"
+    }
+  },
+  {
+    "model": "reports.upvote",
+    "pk": 5,
+    "fields": {
+      "report": 4,
+      "user": 2,
+      "created_at": "2026-06-09T09:30:00Z"
+    }
+  },
+  {
+    "model": "reports.upvote",
+    "pk": 6,
+    "fields": {
+      "report": 7,
+      "user": 4,
+      "created_at": "2026-06-15T12:00:00Z"
+    }
+  },
+  {
+    "model": "reports.upvote",
+    "pk": 7,
+    "fields": {
+      "report": 8,
+      "user": 4,
+      "created_at": "2026-06-19T07:30:00Z"
+    }
+  },
+  {
+    "model": "reports.comment",
+    "pk": 1,
+    "fields": {
+      "report": 1,
+      "user": 5,
+      "text": "I hit this pothole last week and it bent my rim. Really needs to be fixed ASAP. The swerving traffic is making it even more dangerous.",
+      "created_at": "2026-06-02T10:05:00Z",
+      "is_flagged": false
+    }
+  },
+  {
+    "model": "reports.comment",
+    "pk": 2,
+    "fields": {
+      "report": 1,
+      "user": 2,
+      "text": "Thank you for reporting. Our team has the location on the schedule. Repair is expected within the week.",
+      "created_at": "2026-06-10T14:05:00Z",
+      "is_flagged": false
+    }
+  },
+  {
+    "model": "reports.comment",
+    "pk": 3,
+    "fields": {
+      "report": 2,
+      "user": 5,
+      "text": "Drove through this intersection at 8PM last night. Completely invisible approach from the west. Somebody is going to get seriously hurt.",
+      "created_at": "2026-06-04T07:45:00Z",
+      "is_flagged": false
+    }
+  },
+  {
+    "model": "reports.comment",
+    "pk": 4,
+    "fields": {
+      "report": 4,
+      "user": 5,
+      "text": "This looks like a water main issue underneath. The collapse seems to be getting bigger since the report was filed.",
+      "created_at": "2026-06-10T08:00:00Z",
+      "is_flagged": false
+    }
+  },
+  {
+    "model": "reports.comment",
+    "pk": 5,
+    "fields": {
+      "report": 7,
+      "user": 4,
+      "text": "This pothole has been here for at least 3 weeks. Two cyclists have already reported near falls.",
+      "created_at": "2026-06-15T12:05:00Z",
+      "is_flagged": false
+    }
+  },
+  {
+    "model": "reports.comment",
+    "pk": 6,
+    "fields": {
+      "report": 8,
+      "user": 4,
+      "text": "Absolutely terrifying merge. The guardrail is nearly horizontal in one section. Someone could fly off the ramp.",
+      "created_at": "2026-06-19T07:35:00Z",
+      "is_flagged": false
+    }
+  },
+  {
+    "model": "reports.comment",
+    "pk": 7,
+    "fields": {
+      "report": 8,
+      "user": 3,
+      "text": "We have escalated this to MTO. Emergency barriers will be placed by end of day. Thank you for this report.",
+      "created_at": "2026-06-20T11:05:00Z",
+      "is_flagged": false
+    }
+  }
+]
