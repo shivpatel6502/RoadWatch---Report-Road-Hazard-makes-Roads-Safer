@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+{% block title %}Create Account{% endblock %}
+
+{% block content %}
+<div class="rw-auth-wrapper py-5">
+  <div class="container d-flex justify-content-center">
+    <div class="rw-auth-card" style="max-width:520px;width:100%;">
+
+      <!-- Header -->
+      <div class="rw-auth-header">
+        <span class="rw-auth-logo"><i class="bi bi-exclamation-triangle-fill me-1"></i>RoadWatch</span>
+        <p class="rw-auth-tagline mb-0">Join the community making roads safer</p>
+      </div>
+
+      <!-- Body -->
+      <div class="rw-auth-body">
+        <form method="post" novalidate>
+          {% csrf_token %}
+
+          <!-- Non-field errors -->
+          {% if form.non_field_errors %}
+          <div class="alert alert-danger mb-3">
+            {% for error in form.non_field_errors %}
+              <div><i class="bi bi-exclamation-circle me-1"></i>{{ error }}</div>
+            {% endfor %}
+          </div>
+          {% endif %}
+
+          <!-- Name row -->
+          <div class="row g-3 mb-3">
+            <div class="col-6">
+              <label for="{{ form.first_name.id_for_label }}">First Name</label>
+              {{ form.first_name }}
+              {% if form.first_name.errors %}
+                <div class="invalid-feedback d-block">{{ form.first_name.errors.0 }}</div>
+              {% endif %}
+            </div>
+            <div class="col-6">
+              <label for="{{ form.last_name.id_for_label }}">Last Name</label>
+              {{ form.last_name }}
+              {% if form.last_name.errors %}
+                <div class="invalid-feedback d-block">{{ form.last_name.errors.0 }}</div>
+              {% endif %}
+            </div>
+          </div>
+
+          <!-- Username -->
+          <div class="mb-3">
+            <label for="{{ form.username.id_for_label }}">Username</label>
+            {{ form.username }}
+            {% if form.username.errors %}
+              <div class="invalid-feedback d-block">{{ form.username.errors.0 }}</div>
+            {% endif %}
+          </div>
+
+          <!-- Email -->
+          <div class="mb-3">
+            <label for="{{ form.email.id_for_label }}">Email Address</label>
+            {{ form.email }}
+            {% if form.email.errors %}
+              <div class="invalid-feedback d-block">{{ form.email.errors.0 }}</div>
+            {% endif %}
+          </div>
+
+          <!-- City -->
+          <div class="mb-3">
+            <label for="{{ form.city.id_for_label }}">
+              <i class="bi bi-geo-alt me-1"></i>Your City
+            </label>
+            {{ form.city }}
+            <div style="font-size:0.78rem;color:var(--rw-text-muted);margin-top:0.3rem;">{{ form.city.help_text }}</div>
+            {% if form.city.errors %}
+              <div class="invalid-feedback d-block">{{ form.city.errors.0 }}</div>
+            {% endif %}
+          </div>
+
+          <!-- Password row -->
+          <div class="row g-3 mb-4">
+            <div class="col-6">
+              <label for="{{ form.password1.id_for_label }}">Password</label>
+              {{ form.password1 }}
+              <div style="font-size:0.75rem;color:var(--rw-text-muted);margin-top:0.3rem;">{{ form.password1.help_text }}</div>
+              {% if form.password1.errors %}
+                <div class="invalid-feedback d-block">{{ form.password1.errors.0 }}</div>
+              {% endif %}
+            </div>
+            <div class="col-6">
+              <label for="{{ form.password2.id_for_label }}">Confirm Password</label>
+              {{ form.password2 }}
+              {% if form.password2.errors %}
+                <div class="invalid-feedback d-block">{{ form.password2.errors.0 }}</div>
+              {% endif %}
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-rw-primary w-100 py-3">
+            <i class="bi bi-person-check me-2"></i>Create My Account
+          </button>
+        </form>
+      </div>
+
+      <!-- Footer -->
+      <div class="rw-auth-footer">
+        Already have an account?
+        <a href="{% url 'login' %}" class="ms-1" style="font-weight:600;">
+          Sign in <i class="bi bi-arrow-right"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
