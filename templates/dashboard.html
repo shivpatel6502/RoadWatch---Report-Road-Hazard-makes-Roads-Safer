@@ -1,0 +1,315 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Dashboard — RoadWatch{% endblock %}
+
+{% block content %}
+<div class="container-xl py-4">
+
+  <!-- ── Page Header ─────────────────────────────────────────── -->
+  <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+    <div>
+      <h1 class="fw-bold mb-1">
+        <i class="bi bi-speedometer2 me-2 text-primary"></i>
+        Welcome back, {{ request.user.first_name|default:request.user.username }}!
+      </h1>
+      <p class="text-muted mb-0">Here's your RoadWatch activity summary</p>
+    </div>
+    <div class="d-flex gap-2 align-items-center">
+      {% if daily_visits %}
+      <span class="badge bg-primary fs-6 px-3 py-2">
+        <i class="bi bi-calendar-check me-1"></i>
+        {{ daily_visits }} visit{{ daily_visits|pluralize }} today
+      </span>
+      {% endif %}
+      <a href="{% url 'report-submit' %}" class="btn btn-primary btn-sm px-4">
+        <i class="bi bi-plus-circle me-1"></i> New Report
+      </a>
+    </div>
+  </div>
+
+  <!-- ── My Stats Cards ─────────────────────────────────────── -->
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-md-4 col-lg-2">
+      <div class="card stat-card border-0 h-100 text-center p-3" style="background:linear-gradient(135deg,#6366f1,#7c5af7);">
+        <div class="display-5 fw-bold text-white">{{ my_report_count }}</div>
+        <div class="small text-white opacity-75 mt-1">My Reports</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-4 col-lg-2">
+      <div class="card stat-card border-0 h-100 text-center p-3" style="background:linear-gradient(135deg,#10b981,#059669);">
+        <div class="display-5 fw-bold text-white">{{ my_fixed_count }}</div>
+        <div class="small text-white opacity-75 mt-1">Fixed</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-4 col-lg-2">
+      <div class="card stat-card border-0 h-100 text-center p-3" style="background:linear-gradient(135deg,#f59e0b,#d97706);">
+        <div class="display-5 fw-bold text-white">{{ my_open_count }}</div>
+        <div class="small text-white opacity-75 mt-1">Open</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-4 col-lg-2">
+      <div class="card stat-card border-0 h-100 text-center p-3" style="background:linear-gradient(135deg,#3b82f6,#2563eb);">
+        <div class="display-5 fw-bold text-white">{{ my_in_progress }}</div>
+        <div class="small text-white opacity-75 mt-1">In Progress</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-4 col-lg-2">
+      <div class="card stat-card border-0 h-100 text-center p-3" style="background:linear-gradient(135deg,#ec4899,#be185d);">
+        <div class="display-5 fw-bold text-white">{{ my_upvotes_given }}</div>
+        <div class="small text-white opacity-75 mt-1">Upvotes Given</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-4 col-lg-2">
+      <div class="card stat-card border-0 h-100 text-center p-3" style="background:linear-gradient(135deg,#f75a5a,#dc2626);">
+        <div class="display-5 fw-bold text-white">{{ platform_critical }}</div>
+        <div class="small text-white opacity-75 mt-1">Platform Critical</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+
+    <!-- ── Left Column ────────────────────────────────────────── -->
+    <div class="col-lg-8">
+
+      <!-- My Reports Table -->
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-transparent border-0 pt-4 pb-0 px-4 d-flex justify-content-between align-items-center">
+          <h5 class="fw-bold mb-0"><i class="bi bi-file-earmark-text me-2 text-primary"></i>My Reports</h5>
+          <span class="badge bg-secondary">{{ my_report_count }} total</span>
+        </div>
+        <div class="card-body p-0">
+          {% if my_reports %}
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th class="ps-4">Report</th>
+                  <th>Type</th>
+                  <th>Severity</th>
+                  <th>Status</th>
+                  <th>Upvotes</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for report in my_reports %}
+                <tr>
+                  <td class="ps-4">
+                    <div class="fw-semibold">{{ report.title|truncatechars:35 }}</div>
+                    <small class="text-muted">{{ report.city }} · {{ report.created_at|timesince }} ago</small>
+                  </td>
+                  <td><span class="badge bg-light text-dark">{{ report.get_hazard_type_display }}</span></td>
+                  <td>
+                    {% if report.severity == 'critical' %}
+                      <span class="badge bg-danger">Critical</span>
+                    {% elif report.severity == 'high' %}
+                      <span class="badge bg-warning text-dark">High</span>
+                    {% elif report.severity == 'medium' %}
+                      <span class="badge bg-info text-dark">Medium</span>
+                    {% else %}
+                      <span class="badge bg-secondary">Low</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if report.status == 'fixed' %}
+                      <span class="badge bg-success">Fixed ✓</span>
+                    {% elif report.status == 'resolved' %}
+                      <span class="badge bg-primary">Resolved</span>
+                    {% elif report.status == 'in_progress' %}
+                      <span class="badge bg-info text-dark">In Progress</span>
+                    {% elif report.status == 'under_review' %}
+                      <span class="badge bg-warning text-dark">Under Review</span>
+                    {% elif report.status == 'pending_verify' %}
+                      <span class="badge bg-secondary">Pending Verify</span>
+                    {% else %}
+                      <span class="badge bg-light text-dark border">Open</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    <i class="bi bi-arrow-up-circle-fill text-primary me-1"></i>
+                    {{ report.upvotes.count }}
+                  </td>
+                  <td>
+                    <a href="{% url 'report-detail' report.pk %}" class="btn btn-sm btn-outline-primary">View</a>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% else %}
+          <div class="text-center py-5 text-muted">
+            <i class="bi bi-inbox fs-1 d-block mb-2 opacity-25"></i>
+            <p>No reports yet. <a href="{% url 'report-submit' %}">Submit your first report →</a></p>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Severity Breakdown Bars -->
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-transparent border-0 pt-4 pb-0 px-4">
+          <h5 class="fw-bold mb-0"><i class="bi bi-bar-chart-fill me-2 text-warning"></i>My Reports by Severity</h5>
+        </div>
+        <div class="card-body px-4 pb-4">
+          {% for item in my_severity_data %}
+          <div class="mb-3">
+            <div class="d-flex justify-content-between mb-1">
+              <span class="small fw-semibold">{{ item.label }}</span>
+              <span class="small text-muted">{{ item.count }} ({{ item.pct }}%)</span>
+            </div>
+            <div class="progress" style="height:10px;border-radius:99px;">
+              <div class="progress-bar" role="progressbar"
+                   style="width:{{ item.pct }}%;background:{{ item.color }};border-radius:99px;"
+                   aria-valuenow="{{ item.pct }}" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- 7-Day Activity Line -->
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-transparent border-0 pt-4 pb-0 px-4">
+          <h5 class="fw-bold mb-0"><i class="bi bi-graph-up me-2 text-success"></i>Platform Activity — Last 7 Days</h5>
+        </div>
+        <div class="card-body px-4 pb-4">
+          <canvas id="activityChart" height="100"></canvas>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── Right Column ───────────────────────────────────────── -->
+    <div class="col-lg-4">
+
+      <!-- Notifications -->
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-transparent border-0 pt-4 pb-0 px-4 d-flex justify-content-between align-items-center">
+          <h5 class="fw-bold mb-0">
+            <i class="bi bi-bell-fill me-2 text-warning"></i>Notifications
+            {% if unread_count %}<span class="badge bg-danger ms-1">{{ unread_count }}</span>{% endif %}
+          </h5>
+          {% if unread_count %}
+          <a href="{% url 'notifications-read' %}" class="btn btn-sm btn-outline-secondary">Mark all read</a>
+          {% endif %}
+        </div>
+        <div class="card-body px-4 pb-4">
+          {% if notifications %}
+            {% for notif in notifications %}
+            <div class="d-flex gap-3 mb-3 pb-3 border-bottom {% if not notif.is_read %}bg-primary bg-opacity-10 rounded p-2{% endif %}">
+              <div class="flex-shrink-0">
+                <i class="bi bi-bell {% if not notif.is_read %}text-primary{% else %}text-muted{% endif %} fs-5"></i>
+              </div>
+              <div class="flex-grow-1">
+                <p class="mb-1 small">{{ notif.message }}</p>
+                <small class="text-muted">{{ notif.created_at|timesince }} ago</small>
+              </div>
+            </div>
+            {% endfor %}
+          {% else %}
+          <div class="text-center py-4 text-muted">
+            <i class="bi bi-bell-slash fs-1 d-block mb-2 opacity-25"></i>
+            <p class="small mb-0">No notifications yet</p>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Recently Viewed -->
+      {% if recently_viewed %}
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-transparent border-0 pt-4 pb-0 px-4">
+          <h5 class="fw-bold mb-0"><i class="bi bi-clock-history me-2 text-info"></i>Recently Viewed</h5>
+        </div>
+        <div class="card-body px-4 pb-4">
+          {% for report in recently_viewed %}
+          <a href="{% url 'report-detail' report.pk %}" class="text-decoration-none">
+            <div class="d-flex gap-2 align-items-center mb-3">
+              <i class="bi bi-geo-alt-fill text-danger flex-shrink-0"></i>
+              <div class="flex-grow-1 min-w-0">
+                <div class="small fw-semibold text-truncate">{{ report.title }}</div>
+                <div class="text-muted" style="font-size:.75rem;">{{ report.city }} · {{ report.get_status_display }}</div>
+              </div>
+            </div>
+          </a>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Platform Stats -->
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-transparent border-0 pt-4 pb-0 px-4">
+          <h5 class="fw-bold mb-0"><i class="bi bi-globe me-2 text-primary"></i>Platform Overview</h5>
+        </div>
+        <div class="card-body px-4 pb-4">
+          <div class="d-flex justify-content-between mb-2">
+            <span class="text-muted small">Total Reports</span>
+            <span class="fw-bold">{{ platform_total }}</span>
+          </div>
+          <div class="d-flex justify-content-between mb-2">
+            <span class="text-muted small">Fixed</span>
+            <span class="fw-bold text-success">{{ platform_fixed }}</span>
+          </div>
+          <div class="d-flex justify-content-between mb-2">
+            <span class="text-muted small">Open</span>
+            <span class="fw-bold text-warning">{{ platform_open }}</span>
+          </div>
+          <div class="d-flex justify-content-between mb-3">
+            <span class="text-muted small">In Progress</span>
+            <span class="fw-bold text-info">{{ platform_in_progress }}</span>
+          </div>
+          <div class="mb-1 d-flex justify-content-between">
+            <span class="small fw-semibold">Resolution Rate</span>
+            <span class="small fw-bold text-success">{{ resolution_rate }}%</span>
+          </div>
+          <div class="progress" style="height:10px;border-radius:99px;">
+            <div class="progress-bar bg-success" style="width:{{ resolution_rate }}%;border-radius:99px;"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  // 7-Day Activity Chart
+  const ctx = document.getElementById('activityChart');
+  if (ctx) {
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: {{ daily_labels|safe }},
+        datasets: [{
+          label: 'New Reports',
+          data: {{ daily_counts|safe }},
+          borderColor: '#7c5af7',
+          backgroundColor: 'rgba(124,90,247,0.12)',
+          borderWidth: 2.5,
+          pointBackgroundColor: '#7c5af7',
+          pointRadius: 4,
+          tension: 0.4,
+          fill: true
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: { stepSize: 1 },
+            grid: { color: 'rgba(150,150,150,0.1)' }
+          },
+          x: { grid: { display: false } }
+        }
+      }
+    });
+  }
+</script>
+{% endblock %}
