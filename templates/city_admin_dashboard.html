@@ -1,0 +1,202 @@
+{% extends 'base.html' %}
+{% block title %}City Admin — {{ city_name }}{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="rw-dashboard-header">
+  <div class="container position-relative">
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+      <div>
+        <div style="font-size:0.7rem;font-weight:900;text-transform:uppercase;letter-spacing:1.3px;color:var(--rw-primary-light);margin-bottom:0.4rem;">
+          <i class="bi bi-shield-fill-check me-1"></i>City Admin Panel
+        </div>
+        <h1 style="font-size:1.8rem;font-weight:900;margin-bottom:0.25rem;">
+          🏙️ {{ city_name }} Reports
+        </h1>
+        <p style="font-size:0.9rem;color:var(--rw-text-muted);margin:0;">
+          Manage, prioritize, and update road hazard reports for your city.
+        </p>
+      </div>
+      <div class="d-flex gap-2 flex-wrap">
+        <a href="{% url 'reports:csv_export' %}" class="btn btn-rw-outline" style="font-size:0.85rem;padding:0.6rem 1.25rem;">
+          <i class="bi bi-download me-1"></i>Export CSV
+        </a>
+        <a href="{% url 'reports:index' %}?city={{ city_name }}" class="btn btn-rw-primary" style="font-size:0.85rem;padding:0.6rem 1.25rem;">
+          <i class="bi bi-map me-1"></i>Public View
+        </a>
+      </div>
+    </div>
+
+    <!-- KPI bar -->
+    <div class="row g-3 mt-3">
+      <div class="col-6 col-md-2">
+        <div class="rw-dashboard-stat indigo">
+          <div class="rw-stat-icon indigo"><i class="bi bi-flag-fill"></i></div>
+          <div><div class="rw-big-number" style="font-size:1.6rem;">{{ city_total }}</div><div style="font-size:0.7rem;color:var(--rw-text-muted);">Total</div></div>
+        </div>
+      </div>
+      <div class="col-6 col-md-2">
+        <div class="rw-dashboard-stat" style="border-color:rgba(71,85,105,0.3);">
+          <div class="rw-stat-icon" style="background:rgba(71,85,105,0.15);color:#94a3b8;"><i class="bi bi-circle-fill"></i></div>
+          <div><div style="font-size:1.6rem;font-weight:900;color:#94a3b8;">{{ city_open }}</div><div style="font-size:0.7rem;color:var(--rw-text-muted);">Open</div></div>
+        </div>
+      </div>
+      <div class="col-6 col-md-2">
+        <div class="rw-dashboard-stat amber">
+          <div class="rw-stat-icon amber"><i class="bi bi-tools"></i></div>
+          <div><div class="rw-big-number" style="font-size:1.6rem;">{{ city_in_progress }}</div><div style="font-size:0.7rem;color:var(--rw-text-muted);">In Progress</div></div>
+        </div>
+      </div>
+      <div class="col-6 col-md-2">
+        <div class="rw-dashboard-stat emerald">
+          <div class="rw-stat-icon emerald"><i class="bi bi-check-circle-fill"></i></div>
+          <div><div class="rw-big-number" style="font-size:1.6rem;">{{ city_fixed }}</div><div style="font-size:0.7rem;color:var(--rw-text-muted);">Fixed</div></div>
+        </div>
+      </div>
+      <div class="col-6 col-md-2">
+        <div class="rw-dashboard-stat rose">
+          <div class="rw-stat-icon rose"><i class="bi bi-exclamation-circle-fill"></i></div>
+          <div><div class="rw-big-number" style="font-size:1.6rem;">{{ city_critical }}</div><div style="font-size:0.7rem;color:var(--rw-text-muted);">Critical</div></div>
+        </div>
+      </div>
+      <div class="col-6 col-md-2">
+        <div class="rw-dashboard-stat" style="border-color:rgba(16,185,129,0.25);">
+          <div class="rw-stat-icon emerald"><i class="bi bi-percent"></i></div>
+          <div>
+            <div style="font-size:1.6rem;font-weight:900;color:var(--rw-accent-light);">
+              {% if city_total > 0 %}{% widthratio city_fixed city_total 100 %}{% else %}0{% endif %}%
+            </div>
+            <div style="font-size:0.7rem;color:var(--rw-text-muted);">Fix Rate</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Pipeline status guide -->
+<div style="background:var(--rw-bg-surface);border-bottom:1px solid var(--rw-border);padding:0.65rem 0;">
+  <div class="container">
+    <div style="display:flex;align-items:center;gap:0.4rem;flex-wrap:wrap;font-size:0.76rem;color:var(--rw-text-muted);">
+      <span style="font-weight:700;color:var(--rw-text-dim);margin-right:0.3rem;">Pipeline:</span>
+      <span class="badge-status badge-open">📬 Open</span>
+      <span style="color:var(--rw-text-muted);">→</span>
+      <span class="badge-status badge-under_review">🔍 Under Review</span>
+      <span style="color:var(--rw-text-muted);">→</span>
+      <span class="badge-status badge-in_progress">🔧 In Progress</span>
+      <span style="color:var(--rw-text-muted);">→</span>
+      <span class="badge-status badge-pending_verify">⏳ Pending Verify</span>
+      <span style="color:var(--rw-text-muted);">→</span>
+      <span class="badge-status badge-resolved">🎯 Resolved</span>
+      <span style="color:var(--rw-text-muted);">→</span>
+      <span class="badge-status badge-fixed">✅ Fixed</span>
+    </div>
+  </div>
+</div>
+
+<!-- Reports table -->
+<section class="rw-section pt-3">
+  <div class="container">
+    <div class="rw-chart-card" style="padding:0;overflow:hidden;">
+      <div style="padding:1.1rem 1.5rem;border-bottom:1px solid var(--rw-border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.75rem;">
+        <div class="rw-chart-title mb-0"><i class="bi bi-list-task"></i>Reports Queue (sorted by AI score)</div>
+        <span style="font-size:0.78rem;color:var(--rw-text-muted);">Showing top 30 by priority</span>
+      </div>
+      {% if city_reports %}
+      <div style="overflow-x:auto;">
+        <table class="rw-admin-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Title & Location</th>
+              <th>Type</th>
+              <th>Severity</th>
+              <th>AI Score</th>
+              <th>Status</th>
+              <th>Reported</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for report in city_reports %}
+            <tr onclick="window.location='{% url 'reports:detail' report.pk %}'" style="cursor:pointer;">
+              <td style="color:var(--rw-text-muted);font-size:0.8rem;">#{{ report.pk }}</td>
+              <td>
+                <a href="{% url 'reports:detail' report.pk %}" style="font-weight:700;font-size:0.88rem;color:var(--rw-text);" onclick="event.stopPropagation();">
+                  {{ report.title|truncatechars:38 }}
+                </a>
+                <div style="font-size:0.74rem;color:var(--rw-text-muted);"><i class="bi bi-geo-alt me-1"></i>{{ report.street }}, {{ report.city }}</div>
+              </td>
+              <td><span class="badge-hazard" style="font-size:0.66rem;">{{ report.get_hazard_type_display }}</span></td>
+              <td><span class="badge-severity-{{ report.severity }}" style="font-size:0.66rem;padding:0.2rem 0.5rem;border-radius:20px;">{{ report.get_severity_display|truncatewords:1 }}</span></td>
+              <td>
+                {% if report.ai_score > 0 %}
+                <span class="rw-ai-score" style="font-size:0.72rem;"><i class="bi bi-robot"></i>{{ report.ai_score }}</span>
+                {% else %}
+                <span style="font-size:0.75rem;color:var(--rw-text-muted);">—</span>
+                {% endif %}
+              </td>
+              <td><span class="badge-status badge-{{ report.status }}" style="font-size:0.64rem;">{{ report.get_status_display }}</span></td>
+              <td style="font-size:0.78rem;color:var(--rw-text-muted);">{{ report.created_at|date:"M d" }}</td>
+              <td onclick="event.stopPropagation();">
+                <button class="btn btn-rw-outline" style="font-size:0.72rem;padding:0.3rem 0.7rem;border-radius:8px;"
+                  data-bs-toggle="modal" data-bs-target="#statusModal{{ report.pk }}">
+                  <i class="bi bi-pencil me-1"></i>Update
+                </button>
+
+                <!-- Status Update Modal -->
+                <div class="modal fade" id="statusModal{{ report.pk }}" tabindex="-1" aria-hidden="true">
+                  <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content" style="background:var(--rw-bg-card);border:1px solid rgba(99,102,241,0.2);border-radius:18px;">
+                      <div class="modal-header" style="border-color:var(--rw-border);">
+                        <h5 class="modal-title" style="font-size:1rem;font-weight:800;">Update Report Status</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" style="filter:invert(1) opacity(0.5);"></button>
+                      </div>
+                      <div class="modal-body">
+                        <p style="font-size:0.85rem;color:var(--rw-text-muted);margin-bottom:1rem;">
+                          <strong style="color:var(--rw-text);">{{ report.title|truncatechars:50 }}</strong><br>
+                          Current status: <span class="badge-status badge-{{ report.status }}" style="font-size:0.65rem;">{{ report.get_status_display }}</span>
+                        </p>
+                        <form method="post" action="{% url 'reports:update_status' report.pk %}">
+                          {% csrf_token %}
+                          <div class="mb-3">
+                            <label style="font-size:0.82rem;font-weight:700;margin-bottom:0.4rem;display:block;">New Status</label>
+                            <select name="status" class="rw-select form-select" required>
+                              <option value="open" {% if report.status == 'open' %}selected{% endif %}>📬 Open</option>
+                              <option value="under_review" {% if report.status == 'under_review' %}selected{% endif %}>🔍 Under Review</option>
+                              <option value="in_progress" {% if report.status == 'in_progress' %}selected{% endif %}>🔧 In Progress</option>
+                              <option value="pending_verify" {% if report.status == 'pending_verify' %}selected{% endif %}>⏳ Pending Verify</option>
+                              <option value="resolved" {% if report.status == 'resolved' %}selected{% endif %}>🎯 Resolved</option>
+                              <option value="fixed" {% if report.status == 'fixed' %}selected{% endif %}>✅ Fixed</option>
+                            </select>
+                          </div>
+                          <div class="mb-3">
+                            <label style="font-size:0.82rem;font-weight:700;margin-bottom:0.4rem;display:block;">Official Note (optional)</label>
+                            <textarea name="note" class="rw-input form-control" rows="3" placeholder="Add an official response or update note for the citizen…"></textarea>
+                          </div>
+                          <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-rw-primary flex-fill"><i class="bi bi-check2 me-1"></i>Update Status</button>
+                            <button type="button" class="btn btn-rw-outline" data-bs-dismiss="modal">Cancel</button>
+                          </div>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="rw-empty">
+        <i class="bi bi-check2-all rw-empty-icon"></i>
+        <p>No reports for {{ city_name }}.</p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+{% endblock %}
