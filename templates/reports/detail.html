@@ -1,0 +1,547 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}{{ report.title }}{% endblock %}
+{% block meta_description %}Hazard report: {{ report.title }} in {{ report.city }}. Status: {{ report.get_status_display }}. Severity: {{ report.get_severity_display }}.{% endblock %}
+
+{% block content %}
+
+<!-- ===== INCIDENT HERO BANNER ===== -->
+<div style="background:linear-gradient(160deg,#06080f 0%,#10092a 50%,#060f1a 100%);border-bottom:1px solid rgba(124,90,247,0.15);padding:2.5rem 0 0;position:relative;overflow:hidden;">
+  <!-- Glow orbs -->
+  <div style="position:absolute;top:-80px;right:5%;width:320px;height:320px;border-radius:50%;background:radial-gradient(circle,rgba(124,90,247,0.12),transparent);pointer-events:none;"></div>
+  <div style="position:absolute;bottom:-60px;left:10%;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(0,212,170,0.08),transparent);pointer-events:none;"></div>
+
+  <div class="container position-relative">
+    <!-- Breadcrumb nav -->
+    <div class="d-flex align-items-center gap-3 mb-4">
+      <a href="{% url 'reports:index' %}" class="btn btn-rw-outline" style="padding:0.4rem 0.9rem;font-size:0.85rem;">
+        <i class="bi bi-arrow-left me-1"></i>All Reports
+      </a>
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-0" style="font-size:0.82rem;">
+          <li class="breadcrumb-item"><a href="{% url 'reports:index' %}" style="color:var(--rw-text-muted);">Reports</a></li>
+          <li class="breadcrumb-item active" style="color:var(--rw-text-dim);">{{ report.title|truncatechars:45 }}</li>
+        </ol>
+      </nav>
+    </div>
+
+    <!-- Incident classification row -->
+    <div class="d-flex flex-wrap gap-2 mb-3">
+      <span class="badge-status badge-{{ report.status }}" style="font-size:0.72rem;">
+        <i class="bi bi-circle-fill" style="font-size:6px;"></i>{{ report.get_status_display }}
+      </span>
+      <span class="badge-hazard"><i class="bi bi-exclamation-triangle me-1"></i>{{ report.get_hazard_type_display }}</span>
+      <span class="badge-severity-{{ report.severity }}" style="font-size:0.72rem;padding:0.28rem 0.7rem;border-radius:20px;">
+        ⚠ {{ report.get_severity_display|truncatewords:1 }} Severity
+      </span>
+      {% if report.ai_score > 0 %}
+      <span class="rw-ai-score"><i class="bi bi-robot"></i>AI Score: {{ report.ai_score }}/10</span>
+      {% endif %}
+      {% if report.is_flagged %}
+      <span style="background:rgba(247,90,90,0.2);color:#fca5a5;border:1px solid rgba(247,90,90,0.3);font-size:0.72rem;font-weight:700;padding:0.28rem 0.7rem;border-radius:20px;">
+        <i class="bi bi-flag-fill me-1"></i>Flagged
+      </span>
+      {% endif %}
+    </div>
+
+    <!-- Title + upvote row -->
+    <div class="row align-items-start g-3 pb-4">
+      <div class="col-lg-9">
+        <h1 style="font-size:clamp(1.6rem,4vw,2.4rem);font-weight:900;margin-bottom:0.75rem;letter-spacing:-0.5px;">
+          {{ report.title }}
+        </h1>
+        <div class="d-flex flex-wrap gap-4" style="font-size:0.86rem;color:var(--rw-text-muted);">
+          <span>
+            <i class="bi bi-geo-alt-fill me-1" style="color:var(--rw-teal);"></i>
+            <strong style="color:var(--rw-text-dim);">{{ report.city }}</strong> — {{ report.street }}
+          </span>
+          <span>
+            <i class="bi bi-person-fill me-1" style="color:var(--rw-purple-light);"></i>
+            {% if report.reporter %}{{ report.reporter.get_full_name|default:report.reporter.username }}{% else %}Anonymous{% endif %}
+          </span>
+          <span>
+            <i class="bi bi-calendar3 me-1" style="color:var(--rw-amber);"></i>
+            {{ report.created_at|date:"F j, Y" }}
+          </span>
+          <span>
+            <i class="bi bi-clock me-1" style="color:var(--rw-text-muted);"></i>
+            {{ report.created_at|timesince }} ago
+          </span>
+        </div>
+      </div>
+      <div class="col-lg-3 text-lg-end">
+        {% if user.is_authenticated %}
+        <form method="post" action="{% url 'reports:upvote' report.pk %}" class="d-inline">
+          {% csrf_token %}
+          <button type="submit" class="rw-upvote-btn {% if user_has_upvoted %}upvoted{% endif %}" style="font-size:1rem;padding:0.75rem 1.5rem;">
+            <i class="bi bi-hand-thumbs-up{% if user_has_upvoted %}-fill{% endif %}" style="font-size:1.2rem;"></i>
+            <div>
+              <div style="font-size:1.2rem;font-weight:900;line-height:1;">{{ upvote_count }}</div>
+              <div style="font-size:0.68rem;opacity:0.8;">Upvote{{ upvote_count|pluralize }}</div>
+            </div>
+          </button>
+        </form>
+        {% else %}
+        <div class="rw-upvote-btn" style="opacity:0.6;cursor:default;">
+          <i class="bi bi-hand-thumbs-up" style="font-size:1.2rem;"></i>
+          <div>
+            <div style="font-size:1.2rem;font-weight:900;line-height:1;">{{ upvote_count }}</div>
+            <div style="font-size:0.68rem;opacity:0.8;">Upvotes</div>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Severity bar at bottom of hero -->
+  <div style="height:4px;background:linear-gradient(90deg,
+    {% if report.severity == 'critical' %}#f75a5a,#dc2626
+    {% elif report.severity == 'high' %}#f59e0b,#fb923c
+    {% elif report.severity == 'medium' %}#7c5af7,#00d4aa
+    {% else %}#64748b,#475569{% endif %});"></div>
+</div>
+
+<!-- ===== INCIDENT STATS BAR ===== -->
+<div style="background:var(--rw-bg-surface);border-bottom:1px solid var(--rw-border);padding:0.85rem 0;">
+  <div class="container">
+    <div class="row g-2 text-center">
+      <div class="col-4 col-md-2">
+        <div style="font-size:1.3rem;font-weight:900;color:#f1f5f9;">{{ upvote_count }}</div>
+        <div style="font-size:0.68rem;color:var(--rw-text-muted);text-transform:uppercase;letter-spacing:0.5px;">Upvotes</div>
+      </div>
+      <div class="col-4 col-md-2">
+        <div style="font-size:1.3rem;font-weight:900;color:#f1f5f9;">{{ comment_count }}</div>
+        <div style="font-size:0.68rem;color:var(--rw-text-muted);text-transform:uppercase;letter-spacing:0.5px;">Comments</div>
+      </div>
+      <div class="col-4 col-md-2">
+        <div style="font-size:1.3rem;font-weight:900;color:#f1f5f9;">{{ photos|length }}</div>
+        <div style="font-size:0.68rem;color:var(--rw-text-muted);text-transform:uppercase;letter-spacing:0.5px;">Photos</div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div style="font-size:1.1rem;font-weight:900;">
+          <span class="badge-status badge-{{ report.status }}" style="font-size:0.7rem;">{{ report.get_status_display }}</span>
+        </div>
+        <div style="font-size:0.68rem;color:var(--rw-text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-top:2px;">Current Status</div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div style="font-size:1.1rem;font-weight:900;">
+          {% if report.ai_score > 0 %}
+          <span class="rw-ai-score" style="font-size:0.85rem;"><i class="bi bi-robot"></i>{{ report.ai_score }}/10</span>
+          {% else %}
+          <span style="color:var(--rw-text-muted);font-size:0.9rem;">Pending</span>
+          {% endif %}
+        </div>
+        <div style="font-size:0.68rem;color:var(--rw-text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-top:2px;">AI Score</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MAIN CONTENT ===== -->
+<section class="rw-section pt-4">
+  <div class="container">
+    <div class="row g-4">
+
+      <!-- ═══ LEFT COLUMN ═══ -->
+      <div class="col-lg-8">
+
+        <!-- PHOTO GALLERY -->
+        {% if photos %}
+        <div class="rw-form-card mb-4 fade-in-up" style="padding:1.5rem;">
+          <div class="rw-section-title"><i class="bi bi-camera-fill me-1" style="color:var(--rw-purple-light);"></i>Incident Photos</div>
+          <div class="row g-3">
+            {% for photo in photos %}
+            <div class="col-12 col-sm-{% if photos|length == 1 %}12{% elif photos|length == 2 %}6{% else %}4{% endif %}">
+              <a href="{{ photo.image.url }}" target="_blank" style="display:block;border-radius:14px;overflow:hidden;position:relative;">
+                <img src="{{ photo.image.url }}" alt="{{ photo.caption|default:'Hazard photo' }}"
+                     style="width:100%;aspect-ratio:{% if photos|length == 1 %}16/7{% else %}4/3{% endif %};object-fit:cover;border-radius:14px;border:1px solid var(--rw-border);transition:all 0.3s;">
+                <div style="position:absolute;inset:0;background:rgba(0,0,0,0);transition:background 0.3s;border-radius:14px;display:flex;align-items:center;justify-content:center;" class="photo-overlay">
+                  <i class="bi bi-zoom-in" style="color:#fff;font-size:1.5rem;opacity:0;transition:opacity 0.3s;"></i>
+                </div>
+              </a>
+              {% if photo.caption %}
+              <div style="font-size:0.78rem;color:var(--rw-text-muted);margin-top:0.5rem;text-align:center;font-style:italic;">{{ photo.caption }}</div>
+              {% endif %}
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- INCIDENT DETAIL CARD -->
+        <div class="rw-form-card mb-4 fade-in-up" style="padding:0;overflow:hidden;">
+          <!-- Card header -->
+          <div style="background:linear-gradient(135deg,rgba(124,90,247,0.1),rgba(0,212,170,0.06));padding:1.25rem 1.5rem;border-bottom:1px solid var(--rw-border);">
+            <div class="rw-section-title mb-0"><i class="bi bi-file-earmark-text-fill me-1" style="color:var(--rw-purple-light);"></i>Incident Report</div>
+          </div>
+          <div style="padding:1.5rem;">
+
+            <!-- Incident overview grid -->
+            <div class="row g-3 mb-4">
+              <div class="col-sm-6 col-md-3">
+                <div style="background:rgba(124,90,247,0.08);border:1px solid rgba(124,90,247,0.18);border-radius:12px;padding:1rem;text-align:center;">
+                  <div style="font-size:1.6rem;margin-bottom:0.25rem;">
+                    {% if report.hazard_type == 'pothole' %}🕳️
+                    {% elif report.hazard_type == 'damaged_sign' %}🚧
+                    {% elif report.hazard_type == 'broken_light' %}💡
+                    {% elif report.hazard_type == 'road_crack' %}⚡
+                    {% elif report.hazard_type == 'flooding' %}🌊
+                    {% elif report.hazard_type == 'debris' %}🪨
+                    {% elif report.hazard_type == 'guardrail' %}🛡️
+                    {% elif report.hazard_type == 'bridge_damage' %}🌉
+                    {% else %}⚠️{% endif %}
+                  </div>
+                  <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--rw-purple-light);">Hazard Type</div>
+                  <div style="font-size:0.82rem;color:var(--rw-text-dim);margin-top:0.2rem;">{{ report.get_hazard_type_display }}</div>
+                </div>
+              </div>
+              <div class="col-sm-6 col-md-3">
+                <div style="background:rgba({% if report.severity == 'critical' %}247,90,90{% elif report.severity == 'high' %}245,158,11{% elif report.severity == 'medium' %}124,90,247{% else %}100,116,139{% endif %},0.1);border:1px solid rgba({% if report.severity == 'critical' %}247,90,90{% elif report.severity == 'high' %}245,158,11{% elif report.severity == 'medium' %}124,90,247{% else %}100,116,139{% endif %},0.25);border-radius:12px;padding:1rem;text-align:center;">
+                  <div style="font-size:1.6rem;margin-bottom:0.25rem;">
+                    {% if report.severity == 'critical' %}🔴
+                    {% elif report.severity == 'high' %}🟠
+                    {% elif report.severity == 'medium' %}🟡
+                    {% else %}🟢{% endif %}
+                  </div>
+                  <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--rw-text-muted);">Severity</div>
+                  <div style="font-size:0.82rem;margin-top:0.2rem;">
+                    <span class="badge-severity-{{ report.severity }}" style="font-size:0.72rem;">{{ report.get_severity_display|truncatewords:1 }}</span>
+                  </div>
+                </div>
+              </div>
+              <div class="col-sm-6 col-md-3">
+                <div style="background:rgba(0,212,170,0.08);border:1px solid rgba(0,212,170,0.18);border-radius:12px;padding:1rem;text-align:center;">
+                  <div style="font-size:1.6rem;margin-bottom:0.25rem;">📍</div>
+                  <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--rw-teal);">Location</div>
+                  <div style="font-size:0.82rem;color:var(--rw-text-dim);margin-top:0.2rem;">{{ report.city }}</div>
+                </div>
+              </div>
+              <div class="col-sm-6 col-md-3">
+                <div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.18);border-radius:12px;padding:1rem;text-align:center;">
+                  <div style="font-size:1.6rem;margin-bottom:0.25rem;">
+                    {% if report.status == 'fixed' %}✅
+                    {% elif report.status == 'in_progress' %}🔧
+                    {% elif report.status == 'under_review' %}🔍
+                    {% elif report.status == 'pending_verify' %}⏳
+                    {% elif report.status == 'resolved' %}🎯
+                    {% else %}📬{% endif %}
+                  </div>
+                  <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--rw-amber-light);">Status</div>
+                  <div style="font-size:0.82rem;margin-top:0.2rem;">
+                    <span class="badge-status badge-{{ report.status }}" style="font-size:0.68rem;">{{ report.get_status_display }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Description -->
+            <div class="rw-section-title"><i class="bi bi-align-left me-1"></i>Incident Description</div>
+            <div style="background:rgba(255,255,255,0.02);border:1px solid var(--rw-border);border-radius:12px;padding:1.25rem;margin-bottom:1.25rem;">
+              <p style="color:var(--rw-text-dim);line-height:1.9;font-size:0.95rem;white-space:pre-line;margin:0;">{{ report.description }}</p>
+            </div>
+
+            <!-- Location details -->
+            <div class="rw-section-title"><i class="bi bi-geo-alt-fill me-1" style="color:var(--rw-teal);"></i>Location Details</div>
+            <div style="background:rgba(0,212,170,0.05);border:1px solid rgba(0,212,170,0.15);border-radius:12px;padding:1.25rem;margin-bottom:1.25rem;">
+              <div class="row g-2" style="font-size:0.88rem;">
+                <div class="col-sm-6">
+                  <span style="color:var(--rw-text-muted);">City:</span>
+                  <strong style="color:#f1f5f9;margin-left:0.5rem;">{{ report.city }}</strong>
+                </div>
+                <div class="col-sm-6">
+                  <span style="color:var(--rw-text-muted);">Street:</span>
+                  <strong style="color:#f1f5f9;margin-left:0.5rem;">{{ report.street }}</strong>
+                </div>
+                {% if report.latitude and report.longitude %}
+                <div class="col-12 mt-1">
+                  <span style="color:var(--rw-text-muted);">GPS Coordinates:</span>
+                  <code style="color:var(--rw-teal);margin-left:0.5rem;background:rgba(0,212,170,0.1);padding:0.15rem 0.5rem;border-radius:6px;font-size:0.82rem;">
+                    {{ report.latitude }}, {{ report.longitude }}
+                  </code>
+                  <a href="https://maps.google.com/?q={{ report.latitude }},{{ report.longitude }}" target="_blank"
+                     style="margin-left:0.5rem;font-size:0.78rem;color:var(--rw-purple-light);">
+                    <i class="bi bi-box-arrow-up-right me-1"></i>Open in Maps
+                  </a>
+                </div>
+                {% endif %}
+              </div>
+            </div>
+
+            {% if report.document %}
+            <!-- Supporting Document -->
+            <div class="rw-section-title"><i class="bi bi-paperclip me-1"></i>Attached Document</div>
+            <a href="{{ report.document.url }}" target="_blank" class="btn btn-rw-outline" style="font-size:0.85rem;">
+              <i class="bi bi-file-earmark-arrow-down me-2"></i>Download Supporting Document
+            </a>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- AI INSIGHT CARD -->
+        {% if ai_insight %}
+        <div class="rw-form-card mb-4 fade-in-up" style="border-left:3px solid var(--rw-purple);padding:0;overflow:hidden;">
+          <div style="background:linear-gradient(135deg,rgba(124,90,247,0.12),rgba(0,212,170,0.06));padding:1.25rem 1.5rem;border-bottom:1px solid var(--rw-border);">
+            <div class="rw-section-title mb-0"><i class="bi bi-robot me-1" style="color:var(--rw-purple-light);"></i>AI Hazard Analysis</div>
+          </div>
+          <div style="padding:1.5rem;">
+            <div class="row g-4 align-items-center">
+              <div class="col-auto text-center">
+                <div style="width:90px;height:90px;border-radius:50%;background:conic-gradient(var(--rw-purple) 0deg {{ ai_insight.severity_score|default:0 }}0%, var(--rw-border) 0%);display:flex;align-items:center;justify-content:center;position:relative;">
+                  <div style="width:68px;height:68px;border-radius:50%;background:var(--rw-bg-card);display:flex;align-items:center;justify-content:center;flex-direction:column;">
+                    <div style="font-size:1.6rem;font-weight:900;" class="text-gradient">{{ ai_insight.severity_score }}</div>
+                    <div style="font-size:0.65rem;color:var(--rw-text-muted);">/ 10</div>
+                  </div>
+                </div>
+              </div>
+              <div class="col">
+                <div style="font-weight:800;font-size:1rem;margin-bottom:0.4rem;color:#f1f5f9;">AI Severity Score</div>
+                <div style="font-size:0.88rem;color:var(--rw-text-dim);margin-bottom:0.75rem;line-height:1.6;">
+                  {% if ai_insight.severity_score == 0 %}
+                    <span style="color:var(--rw-text-muted);font-style:italic;">⏳ Awaiting AI analysis — score will appear shortly.</span>
+                  {% elif ai_insight.severity_score >= 8 %}
+                    <span style="color:var(--rw-danger);">🔴 <strong>High Priority</strong> — AI recommends immediate city action. This hazard poses significant danger to public safety.</span>
+                  {% elif ai_insight.severity_score >= 5 %}
+                    <span style="color:var(--rw-amber-light);">🟡 <strong>Medium Priority</strong> — Should be addressed within the next maintenance cycle.</span>
+                  {% elif ai_insight.severity_score >= 3 %}
+                    <span style="color:var(--rw-purple-light);">🟢 <strong>Low-Medium Priority</strong> — Schedule for routine repair during next road crew dispatch.</span>
+                  {% else %}
+                    <span style="color:var(--rw-text-muted);">⚪ <strong>Low Priority</strong> — Minor hazard, monitor and address when convenient.</span>
+                  {% endif %}
+                </div>
+                <!-- Score bar -->
+                <div style="background:rgba(255,255,255,0.05);border-radius:8px;height:10px;overflow:hidden;">
+                  <div style="height:100%;border-radius:8px;width:{{ ai_insight.severity_score }}0%;
+                    background:{% if ai_insight.severity_score >= 8 %}linear-gradient(90deg,#f75a5a,#dc2626)
+                    {% elif ai_insight.severity_score >= 5 %}linear-gradient(90deg,#f59e0b,#fb923c)
+                    {% else %}linear-gradient(90deg,#7c5af7,#00d4aa){% endif %};
+                    transition:width 1s ease;"></div>
+                </div>
+              </div>
+            </div>
+            {% if ai_insight.is_duplicate_of %}
+            <div class="alert alert-warning mt-3" style="font-size:0.85rem;margin-bottom:0;">
+              <i class="bi bi-copy me-2"></i>AI detected a possible duplicate of
+              <a href="{% url 'reports:detail' ai_insight.is_duplicate_of.pk %}" style="color:inherit;font-weight:700;text-decoration:underline;">
+                Report #{{ ai_insight.is_duplicate_of.pk }}: {{ ai_insight.is_duplicate_of.title|truncatechars:50 }}
+              </a>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- COMMUNITY COMMENTS -->
+        <div class="rw-form-card fade-in-up" style="padding:0;overflow:hidden;">
+          <div style="background:linear-gradient(135deg,rgba(0,212,170,0.06),rgba(124,90,247,0.04));padding:1.25rem 1.5rem;border-bottom:1px solid var(--rw-border);">
+            <div class="rw-section-title mb-0">
+              <i class="bi bi-chat-square-dots-fill me-1" style="color:var(--rw-teal);"></i>Community Discussion
+              <span style="color:var(--rw-text-muted);font-weight:500;text-transform:none;letter-spacing:0;">({{ comment_count }} comment{{ comment_count|pluralize }})</span>
+            </div>
+          </div>
+          <div style="padding:1.5rem;">
+            {% if comments %}
+              {% for comment in comments %}
+              <div class="rw-comment">
+                <div class="rw-comment-author">
+                  <div style="width:32px;height:32px;border-radius:50%;background:var(--rw-grad);display:flex;align-items:center;justify-content:center;font-size:0.78rem;font-weight:700;color:#fff;flex-shrink:0;">
+                    {{ comment.user.first_name|first|upper|default:comment.user.username|first|upper }}
+                  </div>
+                  <div>
+                    <span style="font-weight:700;">{{ comment.user.get_full_name|default:comment.user.username }}</span>
+                    {% if comment.user.profile.is_city_admin or comment.user.profile.is_super_admin %}
+                    <span class="badge-status badge-under_review" style="font-size:0.62rem;margin-left:0.4rem;">Official</span>
+                    {% endif %}
+                  </div>
+                  <span style="font-weight:400;font-size:0.75rem;color:var(--rw-text-muted);margin-left:auto;">{{ comment.created_at|timesince }} ago</span>
+                </div>
+                <p class="rw-comment-text mb-0">{{ comment.text }}</p>
+              </div>
+              {% endfor %}
+            {% else %}
+            <div class="rw-empty" style="padding:2rem 1rem;">
+              <i class="bi bi-chat-square rw-empty-icon" style="font-size:2.5rem;"></i>
+              <p style="font-size:0.9rem;">No comments yet — be the first to share additional details!</p>
+            </div>
+            {% endif %}
+
+            <!-- Comment form -->
+            {% if user.is_authenticated %}
+            <hr class="rw-divider">
+            <div style="font-size:0.85rem;font-weight:700;color:var(--rw-text-dim);margin-bottom:0.75rem;">
+              <i class="bi bi-pencil me-1" style="color:var(--rw-purple-light);"></i>Add your comment
+            </div>
+            <form method="post" action="{% url 'reports:comment' report.pk %}">
+              {% csrf_token %}
+              {{ comment_form.text }}
+              <div class="d-flex justify-content-end mt-2">
+                <button type="submit" class="btn btn-rw-primary" style="font-size:0.88rem;padding:0.55rem 1.4rem;">
+                  <i class="bi bi-send me-1"></i>Post Comment
+                </button>
+              </div>
+            </form>
+            {% else %}
+            <div class="text-center mt-3 py-3" style="font-size:0.9rem;color:var(--rw-text-muted);background:rgba(255,255,255,0.02);border-radius:10px;border:1px dashed var(--rw-border);">
+              <i class="bi bi-lock me-2" style="color:var(--rw-purple-light);"></i>
+              <a href="{% url 'login' %}?next={{ request.path }}" style="color:var(--rw-purple-light);font-weight:600;">Sign in</a> to join the discussion.
+            </div>
+            {% endif %}
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ═══ RIGHT SIDEBAR ═══ -->
+      <div class="col-lg-4">
+
+        <!-- REPORT INFO CARD -->
+        <div class="rw-chart-card mb-4 fade-in-up" style="padding:0;overflow:hidden;">
+          <div style="background:linear-gradient(135deg,rgba(124,90,247,0.1),rgba(0,212,170,0.06));padding:1.1rem 1.25rem;border-bottom:1px solid var(--rw-border);">
+            <div class="rw-section-title mb-0"><i class="bi bi-info-circle-fill me-1" style="color:var(--rw-purple-light);"></i>Report Details</div>
+          </div>
+          <div style="padding:1.25rem;">
+            {% with rows=True %}
+            <div style="display:grid;gap:0.6rem;">
+
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:0.55rem 0.7rem;background:rgba(255,255,255,0.02);border-radius:8px;border:1px solid var(--rw-border);">
+                <span style="font-size:0.8rem;color:var(--rw-text-muted);"><i class="bi bi-hash me-1"></i>Report ID</span>
+                <span style="font-size:0.85rem;font-weight:700;color:#f1f5f9;">#{{ report.pk }}</span>
+              </div>
+
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:0.55rem 0.7rem;background:rgba(255,255,255,0.02);border-radius:8px;border:1px solid var(--rw-border);">
+                <span style="font-size:0.8rem;color:var(--rw-text-muted);"><i class="bi bi-activity me-1"></i>Status</span>
+                <span class="badge-status badge-{{ report.status }}" style="font-size:0.68rem;">{{ report.get_status_display }}</span>
+              </div>
+
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:0.55rem 0.7rem;background:rgba(255,255,255,0.02);border-radius:8px;border:1px solid var(--rw-border);">
+                <span style="font-size:0.8rem;color:var(--rw-text-muted);"><i class="bi bi-exclamation-triangle me-1"></i>Hazard Type</span>
+                <span class="badge-hazard" style="font-size:0.68rem;">{{ report.get_hazard_type_display }}</span>
+              </div>
+
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:0.55rem 0.7rem;background:rgba(255,255,255,0.02);border-radius:8px;border:1px solid var(--rw-border);">
+                <span style="font-size:0.8rem;color:var(--rw-text-muted);"><i class="bi bi-thermometer-half me-1"></i>Severity</span>
+                <span class="badge-severity-{{ report.severity }}" style="font-size:0.68rem;padding:0.2rem 0.6rem;border-radius:20px;">{{ report.get_severity_display|truncatewords:1 }}</span>
+              </div>
+
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:0.55rem 0.7rem;background:rgba(255,255,255,0.02);border-radius:8px;border:1px solid var(--rw-border);">
+                <span style="font-size:0.8rem;color:var(--rw-text-muted);"><i class="bi bi-geo-alt me-1"></i>City</span>
+                <span style="font-size:0.85rem;font-weight:600;color:#f1f5f9;">{{ report.city }}</span>
+              </div>
+
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:0.55rem 0.7rem;background:rgba(255,255,255,0.02);border-radius:8px;border:1px solid var(--rw-border);">
+                <span style="font-size:0.8rem;color:var(--rw-text-muted);"><i class="bi bi-person me-1"></i>Reported By</span>
+                <span style="font-size:0.85rem;font-weight:600;color:#f1f5f9;">
+                  {% if report.reporter %}{{ report.reporter.get_full_name|default:report.reporter.username|truncatechars:18 }}{% else %}Anonymous{% endif %}
+                </span>
+              </div>
+
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:0.55rem 0.7rem;background:rgba(255,255,255,0.02);border-radius:8px;border:1px solid var(--rw-border);">
+                <span style="font-size:0.8rem;color:var(--rw-text-muted);"><i class="bi bi-calendar3 me-1"></i>Submitted</span>
+                <span style="font-size:0.82rem;color:var(--rw-text-dim);">{{ report.created_at|date:"M d, Y" }}</span>
+              </div>
+
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:0.55rem 0.7rem;background:rgba(255,255,255,0.02);border-radius:8px;border:1px solid var(--rw-border);">
+                <span style="font-size:0.8rem;color:var(--rw-text-muted);"><i class="bi bi-arrow-repeat me-1"></i>Last Updated</span>
+                <span style="font-size:0.82rem;color:var(--rw-text-dim);">{{ report.updated_at|date:"M d, Y" }}</span>
+              </div>
+
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:0.55rem 0.7rem;background:rgba(255,255,255,0.02);border-radius:8px;border:1px solid var(--rw-border);">
+                <span style="font-size:0.8rem;color:var(--rw-text-muted);"><i class="bi bi-hand-thumbs-up me-1"></i>Upvotes</span>
+                <span style="font-size:0.85rem;font-weight:700;color:var(--rw-purple-light);">{{ upvote_count }}</span>
+              </div>
+
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:0.55rem 0.7rem;background:rgba(255,255,255,0.02);border-radius:8px;border:1px solid var(--rw-border);">
+                <span style="font-size:0.8rem;color:var(--rw-text-muted);"><i class="bi bi-chat me-1"></i>Comments</span>
+                <span style="font-size:0.85rem;font-weight:700;color:var(--rw-teal);">{{ comment_count }}</span>
+              </div>
+
+            </div>
+            {% endwith %}
+          </div>
+        </div>
+
+        <!-- STATUS TIMELINE -->
+        {% if status_history %}
+        <div class="rw-chart-card mb-4 fade-in-up" style="padding:0;overflow:hidden;">
+          <div style="background:linear-gradient(135deg,rgba(245,158,11,0.08),rgba(124,90,247,0.05));padding:1.1rem 1.25rem;border-bottom:1px solid var(--rw-border);">
+            <div class="rw-section-title mb-0"><i class="bi bi-clock-history me-1" style="color:var(--rw-amber-light);"></i>Status Timeline</div>
+          </div>
+          <div style="padding:1.25rem;">
+            <div class="rw-timeline">
+              {% for entry in status_history %}
+              <div class="rw-timeline-item">
+                <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.2rem;">
+                  <span class="badge-status badge-{{ entry.new_status }}" style="font-size:0.66rem;">{{ entry.get_new_status_display }}</span>
+                </div>
+                {% if entry.note %}
+                <div style="font-size:0.82rem;color:var(--rw-text-dim);margin-top:0.3rem;font-style:italic;background:rgba(255,255,255,0.02);border-radius:6px;padding:0.4rem 0.6rem;border-left:2px solid var(--rw-purple);">
+                  "{{ entry.note }}"
+                </div>
+                {% endif %}
+                <div style="font-size:0.74rem;color:var(--rw-text-muted);margin-top:0.25rem;">
+                  <i class="bi bi-calendar3 me-1"></i>{{ entry.timestamp|date:"M d, Y H:i" }}
+                  {% if entry.changed_by %}
+                  &mdash; <span style="color:var(--rw-text-dim);">{{ entry.changed_by.username }}</span>
+                  {% endif %}
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- QUICK ACTIONS -->
+        <div class="rw-chart-card fade-in-up">
+          <div class="rw-chart-title"><i class="bi bi-lightning-fill"></i>Actions</div>
+          <div class="d-grid gap-2">
+            {% if user.is_authenticated %}
+            <form method="post" action="{% url 'reports:upvote' report.pk %}">
+              {% csrf_token %}
+              <button type="submit" class="btn w-100 {% if user_has_upvoted %}btn-rw-teal{% else %}btn-rw-primary{% endif %}" style="font-size:0.88rem;">
+                <i class="bi bi-hand-thumbs-up{% if user_has_upvoted %}-fill{% endif %} me-2"></i>
+                {% if user_has_upvoted %}Remove Upvote{% else %}Upvote This Report{% endif %}
+              </button>
+            </form>
+            {% endif %}
+            <a href="{% url 'reports:index' %}?city={{ report.city }}" class="btn btn-rw-outline" style="font-size:0.88rem;">
+              <i class="bi bi-map me-2"></i>Reports in {{ report.city }}
+            </a>
+            <a href="{% url 'reports:index' %}?hazard_type={{ report.hazard_type }}" class="btn btn-rw-outline" style="font-size:0.88rem;">
+              <i class="bi bi-filter me-2"></i>Similar Hazards
+            </a>
+            {% if user.is_authenticated %}
+            <a href="{% url 'reports:submit' %}" class="btn btn-rw-outline" style="font-size:0.88rem;">
+              <i class="bi bi-plus-circle me-2"></i>Submit New Report
+            </a>
+            {% endif %}
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Photo hover effect
+document.querySelectorAll('a[href$=".jpg"], a[href$=".png"], a[href$=".jpeg"], a[href$=".webp"], a[href$=".gif"]').forEach(link => {
+  const overlay = link.querySelector('.photo-overlay');
+  const img = link.querySelector('img');
+  if (!overlay || !img) return;
+  link.addEventListener('mouseenter', () => {
+    overlay.style.background = 'rgba(0,0,0,0.4)';
+    overlay.querySelector('i').style.opacity = '1';
+    img.style.transform = 'scale(1.03)';
+  });
+  link.addEventListener('mouseleave', () => {
+    overlay.style.background = 'rgba(0,0,0,0)';
+    overlay.querySelector('i').style.opacity = '0';
+    img.style.transform = 'scale(1)';
+  });
+});
+</script>
+{% endblock %}
