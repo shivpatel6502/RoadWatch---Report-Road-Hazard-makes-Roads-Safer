@@ -169,3 +169,8 @@ Visit `http://127.0.0.1:8000/`
 ---
 
 *COMP-8347 — University of Windsor — Group 14 — Summer 2026*
+
+## Database Models (Lisa Magnani)
+All 9 core models designed and implemented by Lisa:
+- HazardReport, ReportPhoto, Comment, Upvote
+- Profile, Notification, StatusHistory, AIInsight, Subscription
