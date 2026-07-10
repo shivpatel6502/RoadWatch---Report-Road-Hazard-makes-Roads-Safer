@@ -1,0 +1,77 @@
+[
+  {
+    "model": "auth.user",
+    "pk": 1,
+    "fields": {
+      "username": "superadmin",
+      "first_name": "Alex",
+      "last_name": "Morgan",
+      "email": "superadmin@roadwatch.ca",
+      "password": "pbkdf2_sha256$870000$roadwatch$hashedpassword1",
+      "is_staff": true,
+      "is_active": true,
+      "is_superuser": true,
+      "date_joined": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 2,
+    "fields": {
+      "username": "cityadmin_windsor",
+      "first_name": "Lisa",
+      "last_name": "Mangnani",
+      "email": "lisa.admin@windsor.ca",
+      "password": "pbkdf2_sha256$870000$roadwatch$hashedpassword2",
+      "is_staff": true,
+      "is_active": true,
+      "is_superuser": false,
+      "date_joined": "2026-01-05T08:00:00Z"
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 3,
+    "fields": {
+      "username": "cityadmin_toronto",
+      "first_name": "Janitha",
+      "last_name": "Salla",
+      "email": "janitha.admin@toronto.ca",
+      "password": "pbkdf2_sha256$870000$roadwatch$hashedpassword3",
+      "is_staff": true,
+      "is_active": true,
+      "is_superuser": false,
+      "date_joined": "2026-01-06T08:00:00Z"
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 4,
+    "fields": {
+      "username": "citizen_dhruv",
+      "first_name": "Dhruv",
+      "last_name": "Patel",
+      "email": "dhruv@example.com",
+      "password": "pbkdf2_sha256$870000$roadwatch$hashedpassword4",
+      "is_staff": false,
+      "is_active": true,
+      "is_superuser": false,
+      "date_joined": "2026-01-10T09:00:00Z"
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 5,
+    "fields": {
+      "username": "citizen_hiten",
+      "first_name": "Hiten",
+      "last_name": "Patil",
+      "email": "hiten@example.com",
+      "password": "pbkdf2_sha256$870000$roadwatch$hashedpassword5",
+      "is_staff": false,
+      "is_active": true,
+      "is_superuser": false,
+      "date_joined": "2026-01-12T10:00:00Z"
+    }
+  }
+]

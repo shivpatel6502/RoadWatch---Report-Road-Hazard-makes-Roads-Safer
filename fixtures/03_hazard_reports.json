@@ -1,0 +1,222 @@
+[
+  {
+    "model": "reports.hazardreport",
+    "pk": 1,
+    "fields": {
+      "title": "Large Pothole on Wyandotte St E",
+      "description": "A significant pothole approximately 40cm wide and 15cm deep near the intersection of Wyandotte and Gladstone. Vehicles swerving to avoid it are creating a secondary hazard.",
+      "hazard_type": "pothole",
+      "severity": "high",
+      "status": "in_progress",
+      "city": "Windsor",
+      "street": "Wyandotte St E & Gladstone Ave",
+      "latitude": "42.319400",
+      "longitude": "-83.028900",
+      "reporter": 4,
+      "ai_score": 8,
+      "document": "",
+      "is_flagged": false,
+      "is_active": true,
+      "created_at": "2026-06-01T09:30:00Z",
+      "updated_at": "2026-06-10T14:00:00Z"
+    }
+  },
+  {
+    "model": "reports.hazardreport",
+    "pk": 2,
+    "fields": {
+      "title": "Missing Stop Sign at Tecumseh & Pillette",
+      "description": "The stop sign at the south-east corner of Tecumseh Rd E and Pillette Rd is completely missing. Very dangerous for cross-traffic especially during evening hours.",
+      "hazard_type": "damaged_sign",
+      "severity": "critical",
+      "status": "under_review",
+      "city": "Windsor",
+      "street": "Tecumseh Rd E & Pillette Rd",
+      "latitude": "42.326800",
+      "longitude": "-82.978300",
+      "reporter": 4,
+      "ai_score": 9,
+      "document": "",
+      "is_flagged": false,
+      "is_active": true,
+      "created_at": "2026-06-03T11:00:00Z",
+      "updated_at": "2026-06-05T08:30:00Z"
+    }
+  },
+  {
+    "model": "reports.hazardreport",
+    "pk": 3,
+    "fields": {
+      "title": "Street Light Out — Three Consecutive Blocks on Walker Rd",
+      "description": "Three consecutive street lights are out on Walker Rd between Seminole and Richmond. The stretch is completely dark at night, posing safety risks to pedestrians and cyclists.",
+      "hazard_type": "broken_light",
+      "severity": "high",
+      "status": "open",
+      "city": "Windsor",
+      "street": "Walker Rd between Seminole and Richmond",
+      "latitude": "42.308900",
+      "longitude": "-82.989100",
+      "reporter": 4,
+      "ai_score": 7,
+      "document": "",
+      "is_flagged": false,
+      "is_active": true,
+      "created_at": "2026-06-05T20:00:00Z",
+      "updated_at": "2026-06-05T20:00:00Z"
+    }
+  },
+  {
+    "model": "reports.hazardreport",
+    "pk": 4,
+    "fields": {
+      "title": "Road Sinkhole Developing on Lauzon Pkwy",
+      "description": "A sinkhole approximately 1m wide is forming in the right lane of Lauzon Pkwy near Riverside Dr. The asphalt has cracked and is starting to collapse inward.",
+      "hazard_type": "road_crack",
+      "severity": "critical",
+      "status": "pending_verify",
+      "city": "Windsor",
+      "street": "Lauzon Pkwy near Riverside Dr E",
+      "latitude": "42.318500",
+      "longitude": "-82.933200",
+      "reporter": 4,
+      "ai_score": 10,
+      "document": "",
+      "is_flagged": false,
+      "is_active": true,
+      "created_at": "2026-06-08T07:45:00Z",
+      "updated_at": "2026-06-15T12:00:00Z"
+    }
+  },
+  {
+    "model": "reports.hazardreport",
+    "pk": 5,
+    "fields": {
+      "title": "Debris Blocking Bike Lane on University Ave W",
+      "description": "Large chunks of concrete and gravel debris are scattered across the bike lane on University Ave W near Sunset Ave. Cyclists are forced into traffic.",
+      "hazard_type": "debris",
+      "severity": "medium",
+      "status": "resolved",
+      "city": "Windsor",
+      "street": "University Ave W near Sunset Ave",
+      "latitude": "42.305800",
+      "longitude": "-83.065200",
+      "reporter": 4,
+      "ai_score": 5,
+      "document": "",
+      "is_flagged": false,
+      "is_active": true,
+      "created_at": "2026-05-20T13:00:00Z",
+      "updated_at": "2026-06-01T10:00:00Z"
+    }
+  },
+  {
+    "model": "reports.hazardreport",
+    "pk": 6,
+    "fields": {
+      "title": "Standing Water / Flooding at Danforth & Main St",
+      "description": "After every rain event, the intersection at Danforth Ave and Main St floods with standing water 20–30cm deep. Vehicles have stalled and pedestrians cannot cross safely.",
+      "hazard_type": "flooding",
+      "severity": "high",
+      "status": "open",
+      "city": "Toronto",
+      "street": "Danforth Ave & Main St",
+      "latitude": "43.689400",
+      "longitude": "-79.296700",
+      "reporter": 5,
+      "ai_score": 7,
+      "document": "",
+      "is_flagged": false,
+      "is_active": true,
+      "created_at": "2026-06-12T16:30:00Z",
+      "updated_at": "2026-06-12T16:30:00Z"
+    }
+  },
+  {
+    "model": "reports.hazardreport",
+    "pk": 7,
+    "fields": {
+      "title": "Massive Pothole on Queen St E near Broadview",
+      "description": "A pothole spanning nearly the full right lane on Queen St E just west of Broadview Ave. Already caused two flat tires that I am aware of this week.",
+      "hazard_type": "pothole",
+      "severity": "high",
+      "status": "under_review",
+      "city": "Toronto",
+      "street": "Queen St E near Broadview Ave",
+      "latitude": "43.661200",
+      "longitude": "-79.355000",
+      "reporter": 5,
+      "ai_score": 8,
+      "document": "",
+      "is_flagged": false,
+      "is_active": true,
+      "created_at": "2026-06-14T08:00:00Z",
+      "updated_at": "2026-06-16T09:00:00Z"
+    }
+  },
+  {
+    "model": "reports.hazardreport",
+    "pk": 8,
+    "fields": {
+      "title": "Damaged Guardrail on Gardiner Expressway Ramp",
+      "description": "The guardrail on the Spadina Ave on-ramp to the westbound Gardiner Expressway has significant damage — several sections bent outward, offering minimal protection.",
+      "hazard_type": "guardrail",
+      "severity": "critical",
+      "status": "in_progress",
+      "city": "Toronto",
+      "street": "Spadina Ave on-ramp to Gardiner Expressway WB",
+      "latitude": "43.639600",
+      "longitude": "-79.396500",
+      "reporter": 5,
+      "ai_score": 9,
+      "document": "",
+      "is_flagged": false,
+      "is_active": true,
+      "created_at": "2026-06-18T07:00:00Z",
+      "updated_at": "2026-06-20T11:00:00Z"
+    }
+  },
+  {
+    "model": "reports.hazardreport",
+    "pk": 9,
+    "fields": {
+      "title": "Small Pothole — Wyandotte St E (duplicate test)",
+      "description": "Another pothole near Wyandotte and Gladstone intersection — slightly south of the existing report. Unsure if it is the same one.",
+      "hazard_type": "pothole",
+      "severity": "medium",
+      "status": "open",
+      "city": "Windsor",
+      "street": "Wyandotte St E near Gladstone Ave",
+      "latitude": "42.319200",
+      "longitude": "-83.029100",
+      "reporter": 5,
+      "ai_score": 4,
+      "document": "",
+      "is_flagged": false,
+      "is_active": true,
+      "created_at": "2026-06-20T10:00:00Z",
+      "updated_at": "2026-06-20T10:00:00Z"
+    }
+  },
+  {
+    "model": "reports.hazardreport",
+    "pk": 10,
+    "fields": {
+      "title": "Fixed: Cracked Sidewalk on Ouellette Ave",
+      "description": "Large crack in the sidewalk on Ouellette Ave between Park and Elliott. Several pedestrians have tripped. Now repaired.",
+      "hazard_type": "road_crack",
+      "severity": "low",
+      "status": "fixed",
+      "city": "Windsor",
+      "street": "Ouellette Ave between Park St and Elliott St",
+      "latitude": "42.311000",
+      "longitude": "-83.037200",
+      "reporter": 4,
+      "ai_score": 3,
+      "document": "",
+      "is_flagged": false,
+      "is_active": true,
+      "created_at": "2026-05-01T14:00:00Z",
+      "updated_at": "2026-06-10T09:00:00Z"
+    }
+  }
+]
