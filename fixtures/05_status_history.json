@@ -1,0 +1,170 @@
+[
+  {
+    "model": "reports.statushistory",
+    "pk": 1,
+    "fields": {
+      "report": 1,
+      "old_status": "",
+      "new_status": "open",
+      "changed_by": 4,
+      "timestamp": "2026-06-01T09:30:00Z",
+      "note": "Report submitted by citizen."
+    }
+  },
+  {
+    "model": "reports.statushistory",
+    "pk": 2,
+    "fields": {
+      "report": 1,
+      "old_status": "open",
+      "new_status": "under_review",
+      "changed_by": 2,
+      "timestamp": "2026-06-03T10:00:00Z",
+      "note": "Report reviewed by Windsor infrastructure team. Confirmed pothole present."
+    }
+  },
+  {
+    "model": "reports.statushistory",
+    "pk": 3,
+    "fields": {
+      "report": 1,
+      "old_status": "under_review",
+      "new_status": "in_progress",
+      "changed_by": 2,
+      "timestamp": "2026-06-10T14:00:00Z",
+      "note": "Repair crew dispatched. Work order #WD-2026-0610 issued."
+    }
+  },
+  {
+    "model": "reports.statushistory",
+    "pk": 4,
+    "fields": {
+      "report": 2,
+      "old_status": "",
+      "new_status": "open",
+      "changed_by": 4,
+      "timestamp": "2026-06-03T11:00:00Z",
+      "note": "Report submitted by citizen."
+    }
+  },
+  {
+    "model": "reports.statushistory",
+    "pk": 5,
+    "fields": {
+      "report": 2,
+      "old_status": "open",
+      "new_status": "under_review",
+      "changed_by": 2,
+      "timestamp": "2026-06-05T08:30:00Z",
+      "note": "High-priority: missing stop sign. Flagged for emergency response team."
+    }
+  },
+  {
+    "model": "reports.statushistory",
+    "pk": 6,
+    "fields": {
+      "report": 4,
+      "old_status": "",
+      "new_status": "open",
+      "changed_by": 4,
+      "timestamp": "2026-06-08T07:45:00Z",
+      "note": "Report submitted by citizen."
+    }
+  },
+  {
+    "model": "reports.statushistory",
+    "pk": 7,
+    "fields": {
+      "report": 4,
+      "old_status": "open",
+      "new_status": "under_review",
+      "changed_by": 2,
+      "timestamp": "2026-06-09T09:00:00Z",
+      "note": "Critical sinkhole flagged. Site inspection scheduled."
+    }
+  },
+  {
+    "model": "reports.statushistory",
+    "pk": 8,
+    "fields": {
+      "report": 4,
+      "old_status": "under_review",
+      "new_status": "in_progress",
+      "changed_by": 2,
+      "timestamp": "2026-06-12T11:00:00Z",
+      "note": "Geotechnical crew on-site. Temporary barriers placed."
+    }
+  },
+  {
+    "model": "reports.statushistory",
+    "pk": 9,
+    "fields": {
+      "report": 4,
+      "old_status": "in_progress",
+      "new_status": "pending_verify",
+      "changed_by": 2,
+      "timestamp": "2026-06-15T12:00:00Z",
+      "note": "Repair completed. Awaiting 72-hour monitoring before closing."
+    }
+  },
+  {
+    "model": "reports.statushistory",
+    "pk": 10,
+    "fields": {
+      "report": 5,
+      "old_status": "",
+      "new_status": "open",
+      "changed_by": 4,
+      "timestamp": "2026-05-20T13:00:00Z",
+      "note": "Report submitted."
+    }
+  },
+  {
+    "model": "reports.statushistory",
+    "pk": 11,
+    "fields": {
+      "report": 5,
+      "old_status": "open",
+      "new_status": "resolved",
+      "changed_by": 2,
+      "timestamp": "2026-06-01T10:00:00Z",
+      "note": "Debris cleared by city crews. Bike lane fully accessible."
+    }
+  },
+  {
+    "model": "reports.statushistory",
+    "pk": 12,
+    "fields": {
+      "report": 10,
+      "old_status": "",
+      "new_status": "open",
+      "changed_by": 4,
+      "timestamp": "2026-05-01T14:00:00Z",
+      "note": "Report submitted."
+    }
+  },
+  {
+    "model": "reports.statushistory",
+    "pk": 13,
+    "fields": {
+      "report": 10,
+      "old_status": "open",
+      "new_status": "in_progress",
+      "changed_by": 2,
+      "timestamp": "2026-05-15T09:00:00Z",
+      "note": "Sidewalk repair crew assigned."
+    }
+  },
+  {
+    "model": "reports.statushistory",
+    "pk": 14,
+    "fields": {
+      "report": 10,
+      "old_status": "in_progress",
+      "new_status": "fixed",
+      "changed_by": 2,
+      "timestamp": "2026-06-10T09:00:00Z",
+      "note": "Sidewalk fully repaired and inspected. Case closed."
+    }
+  }
+]

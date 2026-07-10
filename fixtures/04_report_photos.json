@@ -1,0 +1,92 @@
+[
+  {
+    "model": "reports.reportphoto",
+    "pk": 1,
+    "fields": {
+      "report": 1,
+      "image": "report_photos/2026/06/sample_pothole_1a.jpg",
+      "caption": "Wide view of the pothole from the sidewalk",
+      "uploaded_at": "2026-06-01T09:35:00Z"
+    }
+  },
+  {
+    "model": "reports.reportphoto",
+    "pk": 2,
+    "fields": {
+      "report": 1,
+      "image": "report_photos/2026/06/sample_pothole_1b.jpg",
+      "caption": "Close-up showing depth of the pothole",
+      "uploaded_at": "2026-06-01T09:36:00Z"
+    }
+  },
+  {
+    "model": "reports.reportphoto",
+    "pk": 3,
+    "fields": {
+      "report": 2,
+      "image": "report_photos/2026/06/sample_sign_2a.jpg",
+      "caption": "Empty sign post — stop sign missing",
+      "uploaded_at": "2026-06-03T11:05:00Z"
+    }
+  },
+  {
+    "model": "reports.reportphoto",
+    "pk": 4,
+    "fields": {
+      "report": 4,
+      "image": "report_photos/2026/06/sample_sinkhole_4a.jpg",
+      "caption": "Sinkhole forming — cracked asphalt",
+      "uploaded_at": "2026-06-08T07:50:00Z"
+    }
+  },
+  {
+    "model": "reports.reportphoto",
+    "pk": 5,
+    "fields": {
+      "report": 4,
+      "image": "report_photos/2026/06/sample_sinkhole_4b.jpg",
+      "caption": "View from vehicle showing collapse area",
+      "uploaded_at": "2026-06-08T07:52:00Z"
+    }
+  },
+  {
+    "model": "reports.reportphoto",
+    "pk": 6,
+    "fields": {
+      "report": 6,
+      "image": "report_photos/2026/06/sample_flood_6a.jpg",
+      "caption": "Standing water depth at intersection",
+      "uploaded_at": "2026-06-12T16:35:00Z"
+    }
+  },
+  {
+    "model": "reports.reportphoto",
+    "pk": 7,
+    "fields": {
+      "report": 7,
+      "image": "report_photos/2026/06/sample_pothole_7a.jpg",
+      "caption": "Pothole on Queen St E — taken from sidewalk",
+      "uploaded_at": "2026-06-14T08:10:00Z"
+    }
+  },
+  {
+    "model": "reports.reportphoto",
+    "pk": 8,
+    "fields": {
+      "report": 8,
+      "image": "report_photos/2026/06/sample_guardrail_8a.jpg",
+      "caption": "Bent guardrail sections on expressway ramp",
+      "uploaded_at": "2026-06-18T07:05:00Z"
+    }
+  },
+  {
+    "model": "reports.reportphoto",
+    "pk": 9,
+    "fields": {
+      "report": 8,
+      "image": "report_photos/2026/06/sample_guardrail_8b.jpg",
+      "caption": "Second angle showing extent of guardrail damage",
+      "uploaded_at": "2026-06-18T07:07:00Z"
+    }
+  }
+]
