@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+{% block title %}Edit Profile{% endblock %}
+
+{% block content %}
+<div class="rw-page-header">
+  <div class="container">
+    <div class="d-flex align-items-center gap-3">
+      <a href="{% url 'reports:dashboard' %}" class="btn btn-rw-outline" style="padding:0.4rem 0.85rem;font-size:0.85rem;">
+        <i class="bi bi-arrow-left"></i>
+      </a>
+      <div>
+        <h1 class="mb-0" style="font-size:1.6rem;">Edit Profile</h1>
+        <p class="mb-0" style="font-size:0.85rem;color:var(--rw-text-muted);">Update your personal info, city preference, and avatar.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<section class="rw-section pt-3">
+  <div class="container">
+    <div class="row g-4 justify-content-center">
+      <div class="col-lg-7">
+        <form method="post" enctype="multipart/form-data" novalidate>
+          {% csrf_token %}
+
+          <!-- User Info -->
+          <div class="rw-form-card">
+            <div class="rw-form-section-title">
+              <i class="bi bi-person"></i>Personal Information
+            </div>
+            <div class="row g-3 mb-3">
+              <div class="col-sm-6">
+                <label for="{{ user_form.first_name.id_for_label }}">First Name</label>
+                {{ user_form.first_name }}
+                {% if user_form.first_name.errors %}<div class="invalid-feedback d-block">{{ user_form.first_name.errors.0 }}</div>{% endif %}
+              </div>
+              <div class="col-sm-6">
+                <label for="{{ user_form.last_name.id_for_label }}">Last Name</label>
+                {{ user_form.last_name }}
+                {% if user_form.last_name.errors %}<div class="invalid-feedback d-block">{{ user_form.last_name.errors.0 }}</div>{% endif %}
+              </div>
+            </div>
+            <div class="mb-3">
+              <label for="{{ user_form.email.id_for_label }}">Email Address</label>
+              {{ user_form.email }}
+              {% if user_form.email.errors %}<div class="invalid-feedback d-block">{{ user_form.email.errors.0 }}</div>{% endif %}
+            </div>
+          </div>
+
+          <!-- Profile Info -->
+          <div class="rw-form-card">
+            <div class="rw-form-section-title">
+              <i class="bi bi-geo-alt"></i>Profile Details
+            </div>
+            <div class="mb-3">
+              <label for="{{ profile_form.city.id_for_label }}">
+                <i class="bi bi-geo-alt me-1"></i>Your City
+              </label>
+              {{ profile_form.city }}
+            </div>
+            <div class="mb-3">
+              <label for="{{ profile_form.phone.id_for_label }}">Phone</label>
+              {{ profile_form.phone }}
+            </div>
+            <div class="mb-3">
+              <label for="{{ profile_form.bio.id_for_label }}">Bio</label>
+              {{ profile_form.bio }}
+            </div>
+          </div>
+
+          <!-- Avatar -->
+          <div class="rw-form-card">
+            <div class="rw-form-section-title">
+              <i class="bi bi-person-circle"></i>Profile Picture
+            </div>
+            <div class="d-flex align-items-center gap-4">
+              <!-- Current avatar -->
+              <div>
+                {% if user.profile.avatar %}
+                  <img src="{{ user.profile.avatar.url }}" id="avatar-preview"
+                       style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid var(--rw-blue);"
+                       alt="Current avatar">
+                {% else %}
+                  <div id="avatar-placeholder"
+                       style="width:80px;height:80px;border-radius:50%;background:var(--rw-grad);display:flex;align-items:center;justify-content:center;font-size:2rem;font-weight:800;color:#fff;border:3px solid var(--rw-blue);">
+                    {{ user.first_name|first|upper|default:user.username|first|upper }}
+                  </div>
+                {% endif %}
+              </div>
+              <div class="flex-grow-1">
+                <label for="{{ profile_form.avatar.id_for_label }}">Upload New Avatar</label>
+                {{ profile_form.avatar }}
+                <div style="font-size:0.78rem;color:var(--rw-text-muted);margin-top:0.3rem;">
+                  JPG, PNG or WEBP. Square image recommended.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="d-flex gap-3">
+            <button type="submit" class="btn btn-rw-primary px-5 py-3">
+              <i class="bi bi-check-circle me-2"></i>Save Changes
+            </button>
+            <a href="{% url 'reports:dashboard' %}" class="btn btn-rw-outline py-3 px-4">Cancel</a>
+          </div>
+        </form>
+      </div>
+
+      <!-- Sidebar: quick info -->
+      <div class="col-lg-4">
+        <div class="rw-form-card" style="position:sticky;top:140px;">
+          <div class="rw-form-section-title"><i class="bi bi-shield-check"></i>Account Info</div>
+          <div class="mb-2" style="font-size:0.85rem;">
+            <span style="color:var(--rw-text-muted);">Username:</span>
+            <strong class="ms-1">@{{ user.username }}</strong>
+          </div>
+          <div class="mb-2" style="font-size:0.85rem;">
+            <span style="color:var(--rw-text-muted);">Role:</span>
+            <strong class="ms-1" style="color:var(--rw-blue);">{{ user.profile.get_role_display }}</strong>
+          </div>
+          <div class="mb-2" style="font-size:0.85rem;">
+            <span style="color:var(--rw-text-muted);">Joined:</span>
+            <strong class="ms-1">{{ user.date_joined|date:"M Y" }}</strong>
+          </div>
+          <hr class="rw-divider">
+          <div style="font-size:0.78rem;color:var(--rw-text-muted);">
+            <i class="bi bi-info-circle me-1"></i>
+            To change your username or password, use the
+            <a href="{% url 'password_reset' %}">password reset flow</a>.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Live avatar preview
+  document.getElementById('{{ profile_form.avatar.id_for_label }}').addEventListener('change', function() {
+    var preview = document.getElementById('avatar-preview') || document.getElementById('avatar-placeholder');
+    if (!preview) return;
+    if (this.files && this.files[0]) {
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        if (preview.tagName === 'IMG') {
+          preview.src = e.target.result;
+        } else {
+          // Replace placeholder div with an img
+          var img = document.createElement('img');
+          img.id = 'avatar-preview';
+          img.src = e.target.result;
+          img.style.cssText = 'width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid var(--rw-blue);';
+          preview.parentNode.replaceChild(img, preview);
+        }
+      };
+      reader.readAsDataURL(this.files[0]);
+    }
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+{% block title %}Subscription Plans{% endblock %}
+{% block meta_description %}Choose a RoadWatch subscription plan. Free, Citizen Pro, and City Partner plans available.{% endblock %}
+
+{% block content %}
+
+<!-- HERO -->
+<div style="background:var(--rw-grad-hero);padding:4rem 0 3rem;border-bottom:1px solid rgba(99,102,241,0.12);position:relative;overflow:hidden;">
+  <div style="position:absolute;inset:0;background:radial-gradient(ellipse 70% 60% at 20% 50%,rgba(99,102,241,0.15),transparent 65%),radial-gradient(ellipse 50% 50% at 80% 40%,rgba(16,185,129,0.09),transparent 65%);pointer-events:none;"></div>
+  <div class="container text-center position-relative">
+    <div style="display:inline-flex;align-items:center;gap:0.5rem;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.2);border-radius:20px;padding:0.35rem 1rem;font-size:0.75rem;font-weight:800;color:var(--rw-amber-light);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:1rem;">
+      <i class="bi bi-stars"></i>Subscription Plans
+    </div>
+    <h1 style="font-size:clamp(2rem,5vw,3.4rem);font-weight:900;letter-spacing:-1.5px;margin-bottom:1rem;">
+      Choose Your <span class="text-gradient">Plan</span>
+    </h1>
+    <p style="font-size:1.05rem;color:var(--rw-text-dim);max-width:520px;margin:0 auto 1.5rem;line-height:1.75;">
+      Start for free or unlock advanced features to make your community safer, faster.
+    </p>
+    {% if user.is_authenticated %}
+    <div style="display:inline-flex;align-items:center;gap:0.5rem;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);border-radius:20px;padding:0.3rem 1rem;font-size:0.82rem;color:var(--rw-accent-light);">
+      <i class="bi bi-person-check-fill"></i>
+      Currently on <strong style="margin-left:0.25rem;">
+        {% if current_plan == 'citizen' %}Citizen Pro
+        {% elif current_plan == 'city' %}City Partner
+        {% else %}Free Plan{% endif %}
+      </strong>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- PRICING CARDS -->
+<section class="rw-section">
+  <div class="container">
+    <div class="row g-4 justify-content-center align-items-stretch">
+
+      <!-- FREE -->
+      <div class="col-md-4 fade-in-up">
+        <div class="rw-plan-card free {% if current_plan == 'free' %}popular{% endif %}">
+          {% if current_plan == 'free' %}<div class="rw-plan-badge">Current</div>{% endif %}
+          <div style="font-size:2.5rem;margin-bottom:0.75rem;">🛣️</div>
+          <h3 style="font-size:1.3rem;font-weight:900;margin-bottom:0.25rem;">Free</h3>
+          <p style="font-size:0.85rem;color:var(--rw-text-muted);margin-bottom:0;">For casual community members</p>
+          <div class="rw-plan-price">$0<span class="rw-plan-price-unit">/mo</span></div>
+          <div style="margin:1.25rem 0;display:flex;flex-direction:column;gap:0;">
+            <div class="rw-plan-feature"><i class="bi bi-check-circle-fill"></i>Browse all public reports</div>
+            <div class="rw-plan-feature"><i class="bi bi-check-circle-fill"></i>View report details & photos</div>
+            <div class="rw-plan-feature"><i class="bi bi-check-circle-fill"></i>Register & create account</div>
+            <div class="rw-plan-feature"><i class="bi bi-x-circle"></i>Submit hazard reports</div>
+            <div class="rw-plan-feature"><i class="bi bi-x-circle"></i>Upvote & comment</div>
+            <div class="rw-plan-feature"><i class="bi bi-x-circle"></i>Notifications & dashboard</div>
+          </div>
+          {% if user.is_authenticated %}
+          <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="plan" value="free">
+            <button type="submit" class="btn btn-rw-outline w-100" {% if current_plan == 'free' %}disabled{% endif %}>
+              {% if current_plan == 'free' %}<i class="bi bi-check2 me-1"></i>Current Plan{% else %}Downgrade to Free{% endif %}
+            </button>
+          </form>
+          {% else %}
+          <a href="{% url 'reports:register' %}" class="btn btn-rw-outline w-100"><i class="bi bi-person-plus me-1"></i>Get Started Free</a>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- CITIZEN PRO -->
+      <div class="col-md-4 fade-in-up">
+        <div class="rw-plan-card citizen {% if current_plan == 'citizen' %}popular{% endif %}" style="{% if current_plan != 'citizen' %}border-color:rgba(99,102,241,0.3);{% endif %}">
+          {% if current_plan == 'citizen' %}<div class="rw-plan-badge">Current</div>
+          {% else %}<div class="rw-plan-badge" style="background:var(--rw-grad);">Most Popular</div>{% endif %}
+          <div style="font-size:2.5rem;margin-bottom:0.75rem;">🚀</div>
+          <h3 style="font-size:1.3rem;font-weight:900;margin-bottom:0.25rem;">Citizen Pro</h3>
+          <p style="font-size:0.85rem;color:var(--rw-text-muted);margin-bottom:0;">For active community reporters</p>
+          <div class="rw-plan-price">$4<span class="rw-plan-price-unit">.99/mo</span></div>
+          <div style="margin:1.25rem 0;display:flex;flex-direction:column;gap:0;">
+            <div class="rw-plan-feature"><i class="bi bi-check-circle-fill"></i>Everything in Free</div>
+            <div class="rw-plan-feature"><i class="bi bi-check-circle-fill"></i>Submit unlimited reports</div>
+            <div class="rw-plan-feature"><i class="bi bi-check-circle-fill"></i>Upvote & comment on reports</div>
+            <div class="rw-plan-feature"><i class="bi bi-check-circle-fill"></i>Personal analytics dashboard</div>
+            <div class="rw-plan-feature"><i class="bi bi-check-circle-fill"></i>Real-time status notifications</div>
+            <div class="rw-plan-feature"><i class="bi bi-x-circle"></i>City admin management tools</div>
+          </div>
+          {% if user.is_authenticated %}
+          <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="plan" value="citizen">
+            <button type="submit" class="btn btn-rw-primary w-100" {% if current_plan == 'citizen' %}disabled{% endif %}>
+              {% if current_plan == 'citizen' %}<i class="bi bi-check2 me-1"></i>Current Plan
+              {% else %}<i class="bi bi-arrow-up-circle me-1"></i>Upgrade to Pro{% endif %}
+            </button>
+          </form>
+          {% else %}
+          <a href="{% url 'reports:register' %}" class="btn btn-rw-primary w-100"><i class="bi bi-person-plus me-1"></i>Join to Subscribe</a>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- CITY PARTNER -->
+      <div class="col-md-4 fade-in-up">
+        <div class="rw-plan-card city {% if current_plan == 'city' %}popular{% endif %}">
+          {% if current_plan == 'city' %}<div class="rw-plan-badge">Current</div>{% endif %}
+          <div style="font-size:2.5rem;margin-bottom:0.75rem;">🏛️</div>
+          <h3 style="font-size:1.3rem;font-weight:900;margin-bottom:0.25rem;">City Partner</h3>
+          <p style="font-size:0.85rem;color:var(--rw-text-muted);margin-bottom:0;">For city officials & organizations</p>
+          <div class="rw-plan-price">$29<span class="rw-plan-price-unit">/mo</span></div>
+          <div style="margin:1.25rem 0;display:flex;flex-direction:column;gap:0;">
+            <div class="rw-plan-feature"><i class="bi bi-check-circle-fill"></i>Everything in Citizen Pro</div>
+            <div class="rw-plan-feature"><i class="bi bi-check-circle-fill"></i>City admin dashboard</div>
+            <div class="rw-plan-feature"><i class="bi bi-check-circle-fill"></i>Manage & update report status</div>
+            <div class="rw-plan-feature"><i class="bi bi-check-circle-fill"></i>CSV export of all reports</div>
+            <div class="rw-plan-feature"><i class="bi bi-check-circle-fill"></i>Platform-wide analytics</div>
+            <div class="rw-plan-feature"><i class="bi bi-check-circle-fill"></i>Priority support & SLA</div>
+          </div>
+          {% if user.is_authenticated %}
+          <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="plan" value="city">
+            <button type="submit" class="btn w-100" style="background:var(--rw-grad-warm);color:#fff;font-weight:700;border-radius:12px;padding:0.7rem;" {% if current_plan == 'city' %}disabled{% endif %}>
+              {% if current_plan == 'city' %}<i class="bi bi-check2 me-1"></i>Current Plan
+              {% else %}<i class="bi bi-building me-1"></i>Go City Partner{% endif %}
+            </button>
+          </form>
+          {% else %}
+          <a href="{% url 'reports:register' %}" class="btn w-100" style="background:var(--rw-grad-warm);color:#fff;font-weight:700;border-radius:12px;padding:0.7rem;"><i class="bi bi-person-plus me-1"></i>Join to Subscribe</a>
+          {% endif %}
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Feature comparison note -->
+    <div class="text-center mt-5 fade-in-up">
+      <div class="rw-form-card" style="display:inline-block;padding:1.25rem 2rem;max-width:600px;">
+        <div style="font-size:0.88rem;color:var(--rw-text-muted);">
+          <i class="bi bi-shield-check me-2" style="color:var(--rw-accent-light);"></i>
+          All plans include HTTPS encryption, data privacy protection, and 99.9% uptime SLA.
+          Cancel or change your plan anytime.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
