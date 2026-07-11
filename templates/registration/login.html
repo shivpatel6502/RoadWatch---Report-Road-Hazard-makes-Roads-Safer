@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% block title %}Sign In{% endblock %}
+
+{% block content %}
+<div class="rw-auth-wrapper py-5">
+  <div class="container d-flex justify-content-center">
+    <div class="rw-auth-card" style="max-width:440px;width:100%;">
+
+      <!-- Header -->
+      <div class="rw-auth-header">
+        <span class="rw-auth-logo"><i class="bi bi-exclamation-triangle-fill me-1"></i>RoadWatch</span>
+        <p class="rw-auth-tagline mb-0">Sign in to report and track road hazards</p>
+      </div>
+
+      <!-- Body -->
+      <div class="rw-auth-body">
+        <form method="post" novalidate>
+          {% csrf_token %}
+
+          {% if form.errors %}
+          <div class="alert alert-danger mb-3">
+            <i class="bi bi-exclamation-circle me-2"></i>
+            Invalid username or password. Please try again.
+          </div>
+          {% endif %}
+
+          <!-- Username -->
+          <div class="mb-3">
+            <label for="id_username">Username</label>
+            <div class="input-group">
+              <span class="input-group-text"
+                    style="background:var(--rw-bg-input);border:1px solid var(--rw-border);border-right:none;border-radius:10px 0 0 10px;color:var(--rw-text-muted);">
+                <i class="bi bi-person"></i>
+              </span>
+              <input type="text" name="username" id="id_username"
+                     class="form-control rw-input" placeholder="Enter your username"
+                     autofocus autocomplete="username" required
+                     style="border-left:none!important;border-radius:0 10px 10px 0!important;">
+            </div>
+          </div>
+
+          <!-- Password -->
+          <div class="mb-4">
+            <label for="id_password">
+              Password
+              <a href="{% url 'password_reset' %}" class="float-end"
+                 style="font-size:0.8rem;font-weight:400;">Forgot password?</a>
+            </label>
+            <div class="input-group">
+              <span class="input-group-text"
+                    style="background:var(--rw-bg-input);border:1px solid var(--rw-border);border-right:none;border-radius:10px 0 0 10px;color:var(--rw-text-muted);">
+                <i class="bi bi-lock"></i>
+              </span>
+              <input type="password" name="password" id="id_password"
+                     class="form-control rw-input" placeholder="Enter your password"
+                     autocomplete="current-password" required
+                     style="border-left:none!important;border-radius:0 10px 10px 0 !important;border-right:none!important;">
+              <button type="button" class="input-group-text" id="togglePassword"
+                      style="background:var(--rw-bg-input);border:1px solid var(--rw-border);border-left:none;border-radius:0 10px 10px 0;color:var(--rw-text-muted);cursor:pointer;">
+                <i class="bi bi-eye" id="toggleIcon"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Hidden next field -->
+          <input type="hidden" name="next" value="{{ next }}">
+
+          <button type="submit" class="btn btn-rw-primary w-100 py-3">
+            <i class="bi bi-box-arrow-in-right me-2"></i>Sign In
+          </button>
+        </form>
+      </div>
+
+      <!-- Footer -->
+      <div class="rw-auth-footer">
+        Don't have an account?
+        <a href="{% url 'reports:register' %}" class="ms-1" style="font-weight:600;">
+          Join RoadWatch free <i class="bi bi-arrow-right"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.getElementById('togglePassword').addEventListener('click', function() {
+    var pw = document.getElementById('id_password');
+    var ic = document.getElementById('toggleIcon');
+    if (pw.type === 'password') {
+      pw.type = 'text';
+      ic.className = 'bi bi-eye-slash';
+    } else {
+      pw.type = 'password';
+      ic.className = 'bi bi-eye';
+    }
+  });
+</script>
+{% endblock %}
