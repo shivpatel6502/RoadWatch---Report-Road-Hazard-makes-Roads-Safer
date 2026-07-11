@@ -1,0 +1,269 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Browse Road Hazards{% endblock %}
+{% block meta_description %}Browse and search community road hazard reports. Filter by city, type, severity and status.{% endblock %}
+
+{% block content %}
+
+<!-- ===== HERO ===== -->
+<section class="rw-hero">
+  <div class="container position-relative">
+    <div class="row align-items-center g-4">
+      <div class="col-lg-6">
+        <div class="d-flex align-items-center gap-2 mb-3">
+          <span class="badge-status badge-open" style="font-size:0.7rem;">
+            <i class="bi bi-circle-fill" style="font-size:6px;"></i>Live Platform
+          </span>
+          <span style="font-size:0.78rem;color:var(--rw-text-muted);">COMP-8347 Group 14 · University of Windsor</span>
+        </div>
+        <h1 class="rw-hero-title">
+          Report Road Hazards.<br>
+          <span class="gradient-text">Make Roads Safer.</span>
+        </h1>
+        <p class="rw-hero-subtitle">
+          Citizens submit hazard reports, AI scores severity, and the community confirms — so road crews fix what matters most, first.
+        </p>
+        <div class="d-flex gap-3 flex-wrap">
+          {% if user.is_authenticated %}
+            <a href="{% url 'reports:submit' %}" class="btn btn-rw-primary px-4">
+              <i class="bi bi-plus-circle me-2"></i>Report a Hazard
+            </a>
+            <a href="#reports-grid" class="btn btn-rw-outline px-4">
+              <i class="bi bi-map me-2"></i>Browse Reports
+            </a>
+          {% else %}
+            <a href="{% url 'reports:register' %}" class="btn btn-rw-primary px-4">
+              <i class="bi bi-person-plus me-2"></i>Join RoadWatch
+            </a>
+            <a href="#reports-grid" class="btn btn-rw-outline px-4">
+              <i class="bi bi-map me-2"></i>Browse Reports
+            </a>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="col-lg-5 offset-lg-1">
+        <div class="row g-3">
+          <div class="col-6">
+            <div class="rw-stat-card text-center">
+              <div class="rw-stat-number">{{ total_reports }}</div>
+              <div class="rw-stat-label"><i class="bi bi-flag me-1"></i>Reports Filed</div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="rw-stat-card text-center">
+              <div class="rw-stat-number">{{ fixed_reports_total }}</div>
+              <div class="rw-stat-label"><i class="bi bi-check-circle me-1"></i>Roads Fixed</div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="rw-stat-card text-center">
+              <div class="rw-stat-number">{{ in_progress_count }}</div>
+              <div class="rw-stat-label"><i class="bi bi-tools me-1"></i>In Progress</div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="rw-stat-card text-center">
+              <div class="rw-stat-number">{{ cities|length }}</div>
+              <div class="rw-stat-label"><i class="bi bi-building me-1"></i>Cities</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FILTER BAR ===== -->
+<div class="rw-filter-bar">
+  <div class="container">
+    <form method="get" id="filter-form">
+      <div class="row g-2 align-items-center">
+        <!-- Search -->
+        <div class="col-12 col-md-4">
+          <div class="input-group">
+            <span class="input-group-text border-0" style="background:var(--rw-bg-input);border-radius:10px 0 0 10px;border:1px solid var(--rw-border);border-right:none;">
+              <i class="bi bi-search" style="color:var(--rw-text-muted);"></i>
+            </span>
+            <input type="text" name="q" id="id_search" class="rw-search-input form-control"
+                   placeholder="Search title, location, description…"
+                   value="{{ current_filters.q }}"
+                   style="border-radius:0 10px 10px 0;border-left:none;">
+          </div>
+        </div>
+
+        <!-- City -->
+        <div class="col-6 col-md-2">
+          <input type="text" name="city" id="id_city_filter" class="rw-search-input form-control"
+                 placeholder="City…" value="{{ current_filters.city }}">
+        </div>
+
+        <!-- Hazard Type -->
+        <div class="col-6 col-md-2">
+          <select name="hazard_type" id="id_hazard_type_filter" class="rw-search-input form-select"
+                  onchange="this.form.submit()">
+            <option value="">All Types</option>
+            {% for val, label in hazard_types %}
+              <option value="{{ val }}" {% if current_filters.hazard_type == val %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- Severity -->
+        <div class="col-6 col-md-2">
+          <select name="severity" id="id_severity_filter" class="rw-search-input form-select"
+                  onchange="this.form.submit()">
+            <option value="">All Severity</option>
+            {% for val, label in severity_levels %}
+              <option value="{{ val }}" {% if current_filters.severity == val %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- Status -->
+        <div class="col-6 col-md-2">
+          <select name="status" id="id_status_filter" class="rw-search-input form-select"
+                  onchange="this.form.submit()">
+            <option value="">All Status</option>
+            {% for val, label in status_choices %}
+              <option value="{{ val }}" {% if current_filters.status == val %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- Search + Clear buttons -->
+        <div class="col-12 col-md-12 d-flex gap-2 justify-content-end">
+          <button type="submit" class="btn btn-rw-primary px-4" style="font-size:0.85rem;padding:0.5rem 1rem!important;">
+            <i class="bi bi-search me-1"></i>Search
+          </button>
+          {% if current_filters.q or current_filters.city or current_filters.hazard_type or current_filters.severity or current_filters.status %}
+          <a href="{% url 'reports:index' %}" class="btn btn-rw-outline" style="font-size:0.85rem;padding:0.5rem 1rem;">
+            <i class="bi bi-x me-1"></i>Clear
+          </a>
+          {% endif %}
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ===== REPORTS GRID ===== -->
+<section class="rw-section" id="reports-grid">
+  <div class="container">
+
+    {% if current_filters.q or current_filters.city or current_filters.hazard_type or current_filters.severity or current_filters.status %}
+    <div class="d-flex align-items-center gap-2 mb-3">
+      <span style="font-size:0.85rem;color:var(--rw-text-muted);">
+        <i class="bi bi-funnel me-1"></i>
+        Showing <strong style="color:var(--rw-text);">{{ paginator.count }}</strong> result{{ paginator.count|pluralize }}
+      </span>
+    </div>
+    {% endif %}
+
+    {% if reports %}
+    <div class="row g-4">
+      {% for report in reports %}
+      <div class="col-12 col-md-6 col-xl-4 fade-in-up">
+        <div class="rw-report-card" data-severity="{{ report.severity }}">
+          <!-- Card header: hazard type + status -->
+          <div class="rw-card-header">
+            <span class="badge-hazard">
+              <i class="bi bi-exclamation-triangle me-1"></i>{{ report.get_hazard_type_display }}
+            </span>
+            <span class="badge-status badge-{{ report.status }}">
+              {{ report.get_status_display }}
+            </span>
+          </div>
+
+          <!-- Body -->
+          <div class="rw-card-body">
+            <h2 class="rw-card-title">
+              <a href="{% url 'reports:detail' report.pk %}">{{ report.title }}</a>
+            </h2>
+            <div class="rw-card-location">
+              <i class="bi bi-geo-alt-fill" style="color:var(--rw-accent);"></i>
+              {{ report.city }} &mdash; {{ report.street|truncatechars:40 }}
+            </div>
+            <p class="rw-card-description">{{ report.description|truncatechars:120 }}</p>
+          </div>
+
+          <!-- Footer: meta info -->
+          <div class="rw-card-footer">
+            <div class="rw-card-meta">
+              <span class="rw-card-meta-item" title="Upvotes">
+                <i class="bi bi-hand-thumbs-up" style="color:var(--rw-primary-light);"></i>
+                {{ report.upvote_count }}
+              </span>
+              <span class="rw-card-meta-item" title="Comments">
+                <i class="bi bi-chat-square-text" style="color:var(--rw-text-muted);"></i>
+                {{ report.comment_count }}
+              </span>
+              <span class="badge-severity-{{ report.severity }}" style="font-size:0.72rem;padding:0.2rem 0.6rem;border-radius:20px;">
+                {{ report.get_severity_display|truncatewords:1 }}
+              </span>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+              {% if report.ai_score > 0 %}
+              <span class="rw-ai-score" title="AI Severity Score">
+                <i class="bi bi-robot"></i>{{ report.ai_score }}/10
+              </span>
+              {% endif %}
+              <span style="font-size:0.75rem;color:var(--rw-text-muted);">{{ report.created_at|timesince }} ago</span>
+            </div>
+            <span style="font-size:0.68rem;color:var(--rw-text-muted);opacity:0.6;"><i class="bi bi-arrow-up-right-square me-1"></i>View</span>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if is_paginated %}
+    <nav class="d-flex justify-content-center mt-5" aria-label="Report pagination">
+      <ul class="pagination rw-pagination">
+        {% if page_obj.has_previous %}
+          <li class="page-item">
+            <a class="page-link" href="?{% if current_filters.q %}q={{ current_filters.q }}&{% endif %}{% if current_filters.city %}city={{ current_filters.city }}&{% endif %}{% if current_filters.hazard_type %}hazard_type={{ current_filters.hazard_type }}&{% endif %}{% if current_filters.severity %}severity={{ current_filters.severity }}&{% endif %}{% if current_filters.status %}status={{ current_filters.status }}&{% endif %}page={{ page_obj.previous_page_number }}">
+              <i class="bi bi-chevron-left"></i>
+            </a>
+          </li>
+        {% endif %}
+        {% for i in paginator.page_range %}
+          <li class="page-item {% if page_obj.number == i %}active{% endif %}">
+            <a class="page-link" href="?{% if current_filters.q %}q={{ current_filters.q }}&{% endif %}{% if current_filters.city %}city={{ current_filters.city }}&{% endif %}{% if current_filters.hazard_type %}hazard_type={{ current_filters.hazard_type }}&{% endif %}{% if current_filters.severity %}severity={{ current_filters.severity }}&{% endif %}{% if current_filters.status %}status={{ current_filters.status }}&{% endif %}page={{ i }}">{{ i }}</a>
+          </li>
+        {% endfor %}
+        {% if page_obj.has_next %}
+          <li class="page-item">
+            <a class="page-link" href="?{% if current_filters.q %}q={{ current_filters.q }}&{% endif %}{% if current_filters.city %}city={{ current_filters.city }}&{% endif %}{% if current_filters.hazard_type %}hazard_type={{ current_filters.hazard_type }}&{% endif %}{% if current_filters.severity %}severity={{ current_filters.severity }}&{% endif %}{% if current_filters.status %}status={{ current_filters.status }}&{% endif %}page={{ page_obj.next_page_number }}">
+              <i class="bi bi-chevron-right"></i>
+            </a>
+          </li>
+        {% endif %}
+      </ul>
+    </nav>
+    {% endif %}
+
+    {% else %}
+    <!-- Empty state -->
+    <div class="rw-empty">
+      <i class="bi bi-search rw-empty-icon"></i>
+      <h3 style="font-size:1.2rem;color:var(--rw-text-dim);">No reports found</h3>
+      <p style="font-size:0.9rem;">Try different filters or be the first to report a hazard in your city.</p>
+      {% if user.is_authenticated %}
+        <a href="{% url 'reports:submit' %}" class="btn btn-rw-primary mt-2">
+          <i class="bi bi-plus-circle me-2"></i>Submit First Report
+        </a>
+      {% else %}
+        <a href="{% url 'reports:register' %}" class="btn btn-rw-primary mt-2">
+          <i class="bi bi-person-plus me-2"></i>Join to Submit
+        </a>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+</section>
+
+{% endblock %}

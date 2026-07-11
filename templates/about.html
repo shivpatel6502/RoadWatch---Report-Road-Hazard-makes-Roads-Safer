@@ -1,0 +1,345 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}About Us{% endblock %}
+{% block meta_description %}Learn about RoadWatch — the community-powered road hazard reporting platform built by Group 14 at the University of Windsor.{% endblock %}
+
+{% block content %}
+
+<!-- ===== ABOUT HERO ===== -->
+<section class="rw-about-hero">
+  <div class="container position-relative">
+    <div class="text-center">
+      <span class="badge-hazard mb-3 d-inline-block" style="font-size:0.75rem;padding:0.4rem 1rem;">
+        <i class="bi bi-mortarboard me-1"></i>COMP-8347 · University of Windsor · Group 14
+      </span>
+      <h1 style="font-size:clamp(2.2rem,5vw,3.8rem);font-weight:900;letter-spacing:-1.5px;margin-bottom:1rem;">
+        About <span class="text-gradient">RoadWatch</span>
+      </h1>
+      <p style="font-size:1.15rem;color:var(--rw-text-dim);max-width:640px;margin:0 auto 2rem;line-height:1.75;">
+        A community-powered road hazard reporting platform where citizens, AI, and city officials 
+        work together to make roads safer — one report at a time.
+      </p>
+      <div class="d-flex gap-3 flex-wrap justify-content-center">
+        <a href="{% url 'reports:index' %}" class="btn btn-rw-primary px-4">
+          <i class="bi bi-map me-2"></i>Browse Reports
+        </a>
+        {% if not user.is_authenticated %}
+        <a href="{% url 'reports:register' %}" class="btn btn-rw-outline px-4">
+          <i class="bi bi-person-plus me-2"></i>Join RoadWatch
+        </a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== PLATFORM STATS ===== -->
+<section class="py-4" style="background:var(--rw-bg-surface);border-bottom:1px solid rgba(124,90,247,0.12);">
+  <div class="container">
+    <div class="row g-3 text-center">
+      <div class="col-6 col-md-3">
+        <div class="rw-stat-card py-3">
+          <div class="rw-stat-number">{{ platform_total }}</div>
+          <div class="rw-stat-label"><i class="bi bi-flag me-1"></i>Reports Filed</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="rw-stat-card py-3">
+          <div class="rw-stat-number">{{ platform_fixed }}</div>
+          <div class="rw-stat-label"><i class="bi bi-check-circle me-1"></i>Roads Fixed</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="rw-stat-card py-3">
+          <div class="rw-stat-number">{{ platform_cities }}</div>
+          <div class="rw-stat-label"><i class="bi bi-building me-1"></i>Cities Served</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="rw-stat-card py-3">
+          <div class="rw-stat-number">{{ resolution_rate }}%</div>
+          <div class="rw-stat-label"><i class="bi bi-bullseye me-1"></i>Resolution Rate</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== WHAT IS ROADWATCH ===== -->
+<section class="rw-section">
+  <div class="container">
+    <div class="row g-5 align-items-center">
+      <div class="col-lg-6 fade-in-up">
+        <div class="rw-mission-card">
+          <div style="position:relative;z-index:1;">
+            <div style="font-size:3rem;margin-bottom:1rem;">🛣️</div>
+            <h2 style="font-size:1.8rem;font-weight:900;margin-bottom:1rem;" class="text-gradient">Our Mission</h2>
+            <p style="font-size:1rem;color:var(--rw-text-dim);line-height:1.8;margin-bottom:0;">
+              Today, citizens report road hazards through informal channels — Google Maps pins, social 
+              media posts, phone calls — that offer <strong style="color:var(--rw-text);">no status tracking, 
+              no accountability</strong>, and no way for the community to signal "this affects many of us." 
+              Road crews have no visibility into which problems citizens consider most urgent.
+            </p>
+            <p style="font-size:1rem;color:var(--rw-text-dim);line-height:1.8;margin-top:1rem;margin-bottom:0;">
+              <strong style="color:var(--rw-purple-light);">RoadWatch changes that</strong> — by giving citizens 
+              a structured voice, city admins a prioritised work queue, and the community real-time visibility 
+              into road repairs.
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6 fade-in-up">
+        <h2 style="font-size:1.8rem;font-weight:900;margin-bottom:1.5rem;">How It Works</h2>
+        <div class="d-flex flex-column gap-3">
+          {% for step in "12345"|make_list %}
+          <div class="d-flex gap-3 align-items-start">
+            <div style="width:40px;height:40px;border-radius:12px;background:var(--rw-grad);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:0.9rem;color:#fff;flex-shrink:0;">{{ step }}</div>
+            <div>
+              {% if step == '1' %}
+                <div style="font-weight:700;color:#f1f5f9;margin-bottom:0.2rem;">Citizen Submits</div>
+                <div style="font-size:0.87rem;color:var(--rw-text-muted);">Fill out a report: title, hazard type, severity, location, up to 3 photos.</div>
+              {% elif step == '2' %}
+                <div style="font-weight:700;color:#f1f5f9;margin-bottom:0.2rem;">AI Scores It</div>
+                <div style="font-size:0.87rem;color:var(--rw-text-muted);">Severity rated 1–10 automatically. Duplicate detector checks for nearby reports.</div>
+              {% elif step == '3' %}
+                <div style="font-weight:700;color:#f1f5f9;margin-bottom:0.2rem;">Community Confirms</div>
+                <div style="font-size:0.87rem;color:var(--rw-text-muted);">Other citizens upvote and comment — social proof for prioritization.</div>
+              {% elif step == '4' %}
+                <div style="font-weight:700;color:#f1f5f9;margin-bottom:0.2rem;">Admin Responds</div>
+                <div style="font-size:0.87rem;color:var(--rw-text-muted);">City admin sees reports sorted by AI score + upvotes, updates status through the pipeline.</div>
+              {% elif step == '5' %}
+                <div style="font-weight:700;color:#f1f5f9;margin-bottom:0.2rem;">Road Gets Fixed</div>
+                <div style="font-size:0.87rem;color:var(--rw-text-muted);">Status set to FIXED. Reporter notified. Global fix counter increments. ✅</div>
+              {% endif %}
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== STATUS PIPELINE ===== -->
+<section class="py-4" style="background:var(--rw-bg-surface);border-top:1px solid rgba(124,90,247,0.1);border-bottom:1px solid rgba(124,90,247,0.1);">
+  <div class="container text-center">
+    <div class="rw-section-title justify-content-center mb-3" style="width:fit-content;margin:0 auto 1rem;">
+      <i class="bi bi-diagram-3 me-1"></i>6-Stage Resolution Pipeline
+    </div>
+    <div class="rw-pipeline">
+      <div class="rw-pipeline-step badge-open" style="background:rgba(100,116,139,0.15);border-color:rgba(100,116,139,0.3);color:#94a3b8;">📬 Open</div>
+      <span class="rw-pipeline-arrow">→</span>
+      <div class="rw-pipeline-step" style="background:rgba(124,90,247,0.15);border-color:rgba(124,90,247,0.3);color:#b8a2ff;">🔍 Under Review</div>
+      <span class="rw-pipeline-arrow">→</span>
+      <div class="rw-pipeline-step" style="background:rgba(245,158,11,0.15);border-color:rgba(245,158,11,0.3);color:#fbbf24;">🔧 In Progress</div>
+      <span class="rw-pipeline-arrow">→</span>
+      <div class="rw-pipeline-step" style="background:rgba(236,72,153,0.15);border-color:rgba(236,72,153,0.3);color:#f9a8d4;">⏳ Pending Verify</div>
+      <span class="rw-pipeline-arrow">→</span>
+      <div class="rw-pipeline-step" style="background:rgba(0,212,170,0.15);border-color:rgba(0,212,170,0.3);color:#6ee7b7;">✅ Resolved</div>
+      <span class="rw-pipeline-arrow">→</span>
+      <div class="rw-pipeline-step" style="background:rgba(0,212,170,0.25);border-color:rgba(0,212,170,0.45);color:#34d399;font-weight:800;">🏁 Fixed</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FEATURES ===== -->
+<section class="rw-section">
+  <div class="container">
+    <div class="text-center mb-5">
+      <h2 style="font-size:2rem;font-weight:900;margin-bottom:0.75rem;">Platform <span class="text-gradient">Features</span></h2>
+      <p style="color:var(--rw-text-muted);max-width:520px;margin:0 auto;">Everything you need to report, track, and resolve road hazards.</p>
+    </div>
+    <div class="row g-3">
+      <div class="col-md-6 col-lg-4 fade-in-up">
+        <div class="rw-feature-box">
+          <div class="rw-feature-icon" style="background:rgba(124,90,247,0.15);color:var(--rw-purple-light);">
+            <i class="bi bi-camera-fill"></i>
+          </div>
+          <h5 style="font-size:0.95rem;font-weight:700;margin-bottom:0.4rem;">Photo Upload</h5>
+          <p style="font-size:0.84rem;color:var(--rw-text-muted);margin:0;">Up to 3 photos per report, avatar upload, supporting documents — all stored securely.</p>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-4 fade-in-up">
+        <div class="rw-feature-box">
+          <div class="rw-feature-icon" style="background:rgba(0,212,170,0.15);color:var(--rw-teal);">
+            <i class="bi bi-robot"></i>
+          </div>
+          <h5 style="font-size:0.95rem;font-weight:700;margin-bottom:0.4rem;">AI Severity Scoring</h5>
+          <p style="font-size:0.84rem;color:var(--rw-text-muted);margin:0;">Every report gets an AI severity score (1–10) and duplicate detection to avoid redundant submissions.</p>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-4 fade-in-up">
+        <div class="rw-feature-box">
+          <div class="rw-feature-icon" style="background:rgba(245,158,11,0.15);color:var(--rw-amber-light);">
+            <i class="bi bi-search"></i>
+          </div>
+          <h5 style="font-size:0.95rem;font-weight:700;margin-bottom:0.4rem;">Search & Filter</h5>
+          <p style="font-size:0.84rem;color:var(--rw-text-muted);margin:0;">Keyword search across title, description, city, street. Filter by type, severity, status, and city.</p>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-4 fade-in-up">
+        <div class="rw-feature-box">
+          <div class="rw-feature-icon" style="background:rgba(236,72,153,0.15);color:#f9a8d4;">
+            <i class="bi bi-hand-thumbs-up-fill"></i>
+          </div>
+          <h5 style="font-size:0.95rem;font-weight:700;margin-bottom:0.4rem;">Community Upvotes</h5>
+          <p style="font-size:0.84rem;color:var(--rw-text-muted);margin:0;">One upvote per user per report — collective voting surfaces the most impactful hazards first.</p>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-4 fade-in-up">
+        <div class="rw-feature-box">
+          <div class="rw-feature-icon" style="background:rgba(79,142,247,0.15);color:var(--rw-blue);">
+            <i class="bi bi-bell-fill"></i>
+          </div>
+          <h5 style="font-size:0.95rem;font-weight:700;margin-bottom:0.4rem;">Real-time Notifications</h5>
+          <p style="font-size:0.84rem;color:var(--rw-text-muted);margin:0;">In-app alerts when a followed report changes status. Never miss an update on your hazards.</p>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-4 fade-in-up">
+        <div class="rw-feature-box">
+          <div class="rw-feature-icon" style="background:rgba(124,90,247,0.1);color:var(--rw-purple-light);">
+            <i class="bi bi-bar-chart-line-fill"></i>
+          </div>
+          <h5 style="font-size:0.95rem;font-weight:700;margin-bottom:0.4rem;">Analytics Dashboard</h5>
+          <p style="font-size:0.84rem;color:var(--rw-text-muted);margin:0;">Charts, KPIs, resolution rate, severity trends, and hazard type breakdowns — all in one view.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== TECH STACK ===== -->
+<section class="py-5" style="background:var(--rw-bg-surface);border-top:1px solid rgba(124,90,247,0.1);border-bottom:1px solid rgba(124,90,247,0.1);">
+  <div class="container text-center">
+    <h2 style="font-size:1.6rem;font-weight:900;margin-bottom:0.5rem;">Built With</h2>
+    <p style="font-size:0.88rem;color:var(--rw-text-muted);margin-bottom:1.75rem;">A modern, reliable tech stack for a production-grade web application.</p>
+    <div class="d-flex flex-wrap gap-2 justify-content-center">
+      <span class="rw-tech-pill"><i class="bi bi-diagram-3 me-1"></i>Django 5.0</span>
+      <span class="rw-tech-pill"><i class="bi bi-bootstrap me-1"></i>Bootstrap 5</span>
+      <span class="rw-tech-pill" style="background:rgba(0,212,170,0.1);border-color:rgba(0,212,170,0.2);color:var(--rw-teal);"><i class="bi bi-database me-1"></i>SQLite / Django ORM</span>
+      <span class="rw-tech-pill" style="background:rgba(245,158,11,0.1);border-color:rgba(245,158,11,0.2);color:var(--rw-amber-light);"><i class="bi bi-robot me-1"></i>AI Severity Scorer</span>
+      <span class="rw-tech-pill" style="background:rgba(79,142,247,0.1);border-color:rgba(79,142,247,0.2);color:var(--rw-blue);"><i class="bi bi-cookie me-1"></i>Sessions & Cookies</span>
+      <span class="rw-tech-pill" style="background:rgba(236,72,153,0.1);border-color:rgba(236,72,153,0.2);color:#f9a8d4;"><i class="bi bi-graph-up me-1"></i>Chart.js Analytics</span>
+      <span class="rw-tech-pill" style="background:rgba(100,116,139,0.1);border-color:rgba(100,116,139,0.2);color:#94a3b8;"><i class="bi bi-github me-1"></i>GitHub</span>
+      <span class="rw-tech-pill" style="background:rgba(0,212,170,0.1);border-color:rgba(0,212,170,0.2);color:var(--rw-teal);"><i class="bi bi-person-lock me-1"></i>Role-Based Auth</span>
+    </div>
+  </div>
+</section>
+
+<!-- ===== TEAM ===== -->
+<section class="rw-section">
+  <div class="container">
+    <div class="text-center mb-5">
+      <h2 style="font-size:2rem;font-weight:900;margin-bottom:0.75rem;">Meet the <span class="text-gradient">Team</span></h2>
+      <p style="color:var(--rw-text-muted);">Masters of Applied Computing · University of Windsor · Group 14</p>
+    </div>
+    <div class="row g-4 justify-content-center">
+
+      <div class="col-md-6 col-lg-4 fade-in-up">
+        <div class="rw-team-card">
+          <div class="rw-team-avatar">LM</div>
+          <div class="rw-team-name">Lisa Magnani</div>
+          <div class="rw-team-role">Database & Models</div>
+          <div class="rw-team-area">All 8 Django models, migrations, Admin config, JSON fixtures, seed data, status history logging, score calculation logic</div>
+          <div class="mt-3 d-flex flex-wrap gap-1 justify-content-center">
+            <span class="badge-hazard" style="font-size:0.68rem;">Models</span>
+            <span class="badge-hazard" style="font-size:0.68rem;">Migrations</span>
+            <span class="badge-hazard" style="font-size:0.68rem;">Admin</span>
+            <span class="badge-hazard" style="font-size:0.68rem;">Fixtures</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-lg-4 fade-in-up">
+        <div class="rw-team-card">
+          <div class="rw-team-avatar" style="background:linear-gradient(135deg,#00d4aa,#06d6f0);">JR</div>
+          <div class="rw-team-name">Janitha Reddy</div>
+          <div class="rw-team-role">AI Features & Views</div>
+          <div class="rw-team-area">AI severity scorer, duplicate detector, upvote view, flag view, URLs routing, AIInsight caching</div>
+          <div class="mt-3 d-flex flex-wrap gap-1 justify-content-center">
+            <span class="badge-hazard" style="font-size:0.68rem;background:rgba(0,212,170,0.12);border-color:rgba(0,212,170,0.25);color:var(--rw-teal);">AI Scoring</span>
+            <span class="badge-hazard" style="font-size:0.68rem;background:rgba(0,212,170,0.12);border-color:rgba(0,212,170,0.25);color:var(--rw-teal);">Views</span>
+            <span class="badge-hazard" style="font-size:0.68rem;background:rgba(0,212,170,0.12);border-color:rgba(0,212,170,0.25);color:var(--rw-teal);">URLs</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-lg-4 fade-in-up">
+        <div class="rw-team-card">
+          <div class="rw-team-avatar" style="background:linear-gradient(135deg,#f59e0b,#fb923c);">SP</div>
+          <div class="rw-team-name">Shiv Patel</div>
+          <div class="rw-team-role">Frontend & Templates</div>
+          <div class="rw-team-area">HTML templates, Bootstrap 5, base.html with navbar/footer, status badge system, mobile-responsive layout, about/team pages</div>
+          <div class="mt-3 d-flex flex-wrap gap-1 justify-content-center">
+            <span class="badge-hazard" style="font-size:0.68rem;background:rgba(245,158,11,0.12);border-color:rgba(245,158,11,0.25);color:#fbbf24;">Templates</span>
+            <span class="badge-hazard" style="font-size:0.68rem;background:rgba(245,158,11,0.12);border-color:rgba(245,158,11,0.25);color:#fbbf24;">CSS</span>
+            <span class="badge-hazard" style="font-size:0.68rem;background:rgba(245,158,11,0.12);border-color:rgba(245,158,11,0.25);color:#fbbf24;">UI/UX</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-lg-4 fade-in-up">
+        <div class="rw-team-card">
+          <div class="rw-team-avatar" style="background:linear-gradient(135deg,#ec4899,#f75a5a);">DP</div>
+          <div class="rw-team-name">Dhruv Patel</div>
+          <div class="rw-team-role">Auth, Forms & Uploads</div>
+          <div class="rw-team-area">Registration, login, logout, forgot password, 3-photo upload, avatar upload, session/cookie config, role-based access control</div>
+          <div class="mt-3 d-flex flex-wrap gap-1 justify-content-center">
+            <span class="badge-hazard" style="font-size:0.68rem;background:rgba(236,72,153,0.12);border-color:rgba(236,72,153,0.25);color:#f9a8d4;">Auth</span>
+            <span class="badge-hazard" style="font-size:0.68rem;background:rgba(236,72,153,0.12);border-color:rgba(236,72,153,0.25);color:#f9a8d4;">Forms</span>
+            <span class="badge-hazard" style="font-size:0.68rem;background:rgba(236,72,153,0.12);border-color:rgba(236,72,153,0.25);color:#f9a8d4;">Uploads</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-lg-4 fade-in-up">
+        <div class="rw-team-card">
+          <div class="rw-team-avatar" style="background:linear-gradient(135deg,#4f8ef7,#06d6f0);">HP</div>
+          <div class="rw-team-name">Hiten Patil</div>
+          <div class="rw-team-role">Dashboards & Search</div>
+          <div class="rw-team-area">Citizen/city-admin/super-admin dashboards, Q-object search, filter dropdowns, pagination, notifications, CSV export, platform stats</div>
+          <div class="mt-3 d-flex flex-wrap gap-1 justify-content-center">
+            <span class="badge-hazard" style="font-size:0.68rem;background:rgba(79,142,247,0.12);border-color:rgba(79,142,247,0.25);color:var(--rw-blue);">Dashboard</span>
+            <span class="badge-hazard" style="font-size:0.68rem;background:rgba(79,142,247,0.12);border-color:rgba(79,142,247,0.25);color:var(--rw-blue);">Search</span>
+            <span class="badge-hazard" style="font-size:0.68rem;background:rgba(79,142,247,0.12);border-color:rgba(79,142,247,0.25);color:var(--rw-blue);">Analytics</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ===== CTA ===== -->
+<section class="py-5 text-center" style="background:var(--rw-bg-surface);border-top:1px solid rgba(124,90,247,0.12);">
+  <div class="container">
+    <div style="max-width:560px;margin:0 auto;">
+      <h2 style="font-size:2rem;font-weight:900;margin-bottom:0.75rem;">
+        Ready to make roads <span class="text-gradient">safer?</span>
+      </h2>
+      <p style="color:var(--rw-text-muted);margin-bottom:2rem;">
+        Join the RoadWatch community. Report hazards, upvote issues, and track repairs in real time.
+      </p>
+      <div class="d-flex gap-3 justify-content-center flex-wrap">
+        {% if user.is_authenticated %}
+          <a href="{% url 'reports:submit' %}" class="btn btn-rw-primary px-5">
+            <i class="bi bi-plus-circle me-2"></i>Submit a Report
+          </a>
+          <a href="{% url 'reports:dashboard' %}" class="btn btn-rw-outline px-5">
+            <i class="bi bi-grid me-2"></i>My Dashboard
+          </a>
+        {% else %}
+          <a href="{% url 'reports:register' %}" class="btn btn-rw-primary px-5">
+            <i class="bi bi-person-plus me-2"></i>Join for Free
+          </a>
+          <a href="{% url 'reports:index' %}" class="btn btn-rw-outline px-5">
+            <i class="bi bi-map me-2"></i>Browse Reports
+          </a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

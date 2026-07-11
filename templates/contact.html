@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+{% block title %}Contact Us{% endblock %}
+
+{% block content %}
+<div style="background:var(--rw-grad-hero);padding:4rem 0 3rem;border-bottom:1px solid rgba(99,102,241,0.12);position:relative;overflow:hidden;">
+  <div style="position:absolute;inset:0;background:radial-gradient(ellipse 70% 60% at 20% 50%,rgba(16,185,129,0.1),transparent 65%);pointer-events:none;"></div>
+  <div class="container text-center position-relative">
+    <div style="font-size:3.5rem;margin-bottom:0.75rem;">📬</div>
+    <h1 style="font-size:clamp(2rem,5vw,3.2rem);font-weight:900;letter-spacing:-1.5px;margin-bottom:1rem;">
+      Get in <span class="text-gradient">Touch</span>
+    </h1>
+    <p style="font-size:1.05rem;color:var(--rw-text-dim);max-width:480px;margin:0 auto;line-height:1.75;">
+      Have a question, suggestion, or want to partner with RoadWatch? We'd love to hear from you.
+    </p>
+  </div>
+</div>
+
+<section class="rw-section">
+  <div class="container">
+    <div class="row g-4 justify-content-center">
+
+      <!-- Contact form -->
+      <div class="col-lg-7 fade-in-up">
+        <div class="rw-form-card" style="padding:2rem;">
+          <div class="rw-section-title"><i class="bi bi-pencil-square me-1" style="color:var(--rw-primary-light);"></i>Send a Message</div>
+          <form method="post" id="contactForm">
+            {% csrf_token %}
+            <div class="row g-3 mb-3">
+              <div class="col-sm-6">
+                <label for="contactName">Your Name <span style="color:var(--rw-danger);">*</span></label>
+                <input type="text" id="contactName" name="name" class="rw-input form-control" placeholder="John Smith" required>
+              </div>
+              <div class="col-sm-6">
+                <label for="contactEmail">Email Address <span style="color:var(--rw-danger);">*</span></label>
+                <input type="email" id="contactEmail" name="email" class="rw-input form-control" placeholder="john@example.com" required>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label for="contactSubject">Subject</label>
+              <select id="contactSubject" name="subject" class="rw-select form-select">
+                <option value="general">General Inquiry</option>
+                <option value="report">Report an Issue</option>
+                <option value="partnership">City Partnership</option>
+                <option value="feedback">Feature Feedback</option>
+                <option value="bug">Bug Report</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            <div class="mb-4">
+              <label for="contactMessage">Message <span style="color:var(--rw-danger);">*</span></label>
+              <textarea id="contactMessage" name="message" class="rw-input form-control" rows="6"
+                        placeholder="Tell us what's on your mind…" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-rw-primary w-100" id="contactSubmit">
+              <i class="bi bi-send me-2"></i>Send Message
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Info panel -->
+      <div class="col-lg-4 fade-in-up">
+        <div class="d-flex flex-column gap-3">
+
+          <div class="rw-chart-card">
+            <div class="rw-chart-title"><i class="bi bi-clock"></i>Response Time</div>
+            <div style="font-size:2rem;font-weight:900;margin-bottom:0.3rem;" class="text-gradient">< 24h</div>
+            <p style="font-size:0.85rem;color:var(--rw-text-muted);margin:0;">We typically respond within one business day.</p>
+          </div>
+
+          <div class="rw-chart-card">
+            <div class="rw-chart-title"><i class="bi bi-envelope"></i>Email Us</div>
+            <a href="mailto:roadwatch@uwindsor.ca" style="color:var(--rw-primary-light);font-weight:700;font-size:0.9rem;">roadwatch@uwindsor.ca</a>
+            <p style="font-size:0.82rem;color:var(--rw-text-muted);margin-top:0.4rem;margin-bottom:0;">For urgent city infrastructure issues, contact your municipal 311 service directly.</p>
+          </div>
+
+          <div class="rw-chart-card">
+            <div class="rw-chart-title"><i class="bi bi-building"></i>University of Windsor</div>
+            <p style="font-size:0.85rem;color:var(--rw-text-muted);margin:0;line-height:1.65;">
+              COMP-8347 — Internet Applications<br>
+              Masters of Applied Computing<br>
+              Group 14 · Summer 2026
+            </p>
+          </div>
+
+          <div class="rw-chart-card">
+            <div class="rw-chart-title"><i class="bi bi-github"></i>Open Source</div>
+            <p style="font-size:0.85rem;color:var(--rw-text-muted);margin-bottom:0.6rem;">RoadWatch is built with Django and Bootstrap 5.</p>
+            <div class="d-flex gap-2 flex-wrap">
+              <span class="rw-tech-pill"><i class="bi bi-diagram-3 me-1"></i>Django 5</span>
+              <span class="rw-tech-pill" style="background:rgba(16,185,129,0.08);border-color:rgba(16,185,129,0.18);color:var(--rw-accent-light);"><i class="bi bi-bootstrap me-1"></i>Bootstrap 5</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('contactForm').addEventListener('submit', function(e) {
+  var btn = document.getElementById('contactSubmit');
+  btn.innerHTML = '<span class="rw-spinner me-2"></span>Sending…';
+  btn.disabled = true;
+  // Re-enable after 3s if form not redirected
+  setTimeout(function() {
+    btn.innerHTML = '<i class="bi bi-send me-2"></i>Send Message';
+    btn.disabled = false;
+  }, 3000);
+});
+</script>
+{% endblock %}

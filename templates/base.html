@@ -1,0 +1,487 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="{% block meta_description %}RoadWatch — Community road hazard reporting. Submit, track, and resolve road hazards in your city.{% endblock %}">
+  <title>{% block title %}RoadWatch{% endblock %} — Community Road Hazard Reporting</title>
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <!-- Google Fonts: Inter + Outfit -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@700;800;900&display=swap" rel="stylesheet">
+  <!-- RoadWatch CSS -->
+  <link href="{% static 'css/roadwatch.css' %}" rel="stylesheet">
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+<!-- =========================================================
+     LOADING SCREEN — Accident animation
+     ========================================================= -->
+<div id="rw-loader" aria-hidden="true">
+  <div class="rw-loader-brand">🚦 RoadWatch</div>
+  <div id="loaderEmoji" class="rw-loader-emoji">🚗</div>
+  <div class="rw-loader-track">
+    <div class="rw-loader-bar"></div>
+  </div>
+  <div class="rw-loader-text" id="loaderText">Loading community reports…</div>
+</div>
+
+<!-- Page transition overlay -->
+<div id="page-transition"></div>
+
+<!-- =========================================================
+     NAVBAR
+     ========================================================= -->
+<nav class="navbar navbar-expand-lg rw-navbar" id="mainNav">
+  <div class="container">
+
+    <!-- Brand -->
+    <a class="navbar-brand" href="{% url 'reports:index' %}">
+      <span class="rw-brand-icon">🚦</span>RoadWatch
+    </a>
+
+    <!-- Mobile toggle -->
+    <button class="navbar-toggler border-0" type="button"
+            data-bs-toggle="collapse" data-bs-target="#navbarMain"
+            aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation"
+            style="color:var(--rw-text-dim);">
+      <i class="bi bi-list fs-5"></i>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarMain">
+      <!-- Left links -->
+      <ul class="navbar-nav me-auto gap-1 mt-2 mt-lg-0">
+        <li class="nav-item">
+          <a class="nav-link {% if request.resolver_match.url_name == 'index' %}active{% endif %}"
+             href="{% url 'reports:index' %}">
+            <i class="bi bi-map me-1"></i>Browse
+          </a>
+        </li>
+        {% if user.is_authenticated %}
+        <li class="nav-item">
+          <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}"
+             href="{% url 'reports:dashboard' %}">
+            <i class="bi bi-grid me-1"></i>Dashboard
+          </a>
+        </li>
+        {% if user.profile.is_city_admin or user.profile.is_super_admin %}
+        <li class="nav-item">
+          <a class="nav-link {% if 'admin' in request.resolver_match.url_name %}active{% endif %}"
+             href="{% url 'reports:city_admin_dashboard' %}">
+            <i class="bi bi-shield-check me-1"></i>Admin
+          </a>
+        </li>
+        {% endif %}
+        {% if user.profile.is_super_admin %}
+        <li class="nav-item">
+          <a class="nav-link {% if request.resolver_match.url_name == 'super_admin_dashboard' %}active{% endif %}"
+             href="{% url 'reports:super_admin_dashboard' %}">
+            <i class="bi bi-crown me-1"></i>Super Admin
+          </a>
+        </li>
+        {% endif %}
+        {% endif %}
+        <li class="nav-item">
+          <a class="nav-link {% if request.resolver_match.url_name == 'leaderboard' %}active{% endif %}"
+             href="{% url 'reports:leaderboard' %}">
+            <i class="bi bi-trophy me-1"></i>Leaderboard
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if request.resolver_match.url_name == 'about' %}active{% endif %}"
+             href="{% url 'reports:about' %}">
+            <i class="bi bi-people me-1"></i>About
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if request.resolver_match.url_name == 'contact' %}active{% endif %}"
+             href="{% url 'reports:contact' %}">
+            <i class="bi bi-envelope me-1"></i>Contact
+          </a>
+        </li>
+      </ul>
+
+      <!-- Right side -->
+      <div class="d-flex align-items-center gap-2">
+
+        <!-- Theme Toggle -->
+        <button class="rw-theme-toggle" id="themeToggle" title="Toggle dark/light mode" aria-label="Toggle theme">
+          <span id="themeIcon">☀️</span>
+        </button>
+
+        {% if user.is_authenticated %}
+          <!-- Subscribe badge -->
+          <a href="{% url 'reports:subscription' %}" class="nav-link" style="font-size:0.8rem;color:var(--rw-text-muted);padding:0.4rem 0.6rem !important;"
+             title="Subscription">
+            <i class="bi bi-stars" style="color:var(--rw-amber);"></i>
+          </a>
+
+          <!-- Submit Report CTA -->
+          <a href="{% url 'reports:submit' %}" class="nav-link btn-rw-submit">
+            <i class="bi bi-plus-circle me-1"></i>Report
+          </a>
+
+          <!-- Notifications bell -->
+          <div class="dropdown">
+            <a class="nav-link rw-notif-btn d-flex align-items-center" id="notifDropdown"
+               href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="bi bi-bell-fill"></i>
+              {% if unread_notifications > 0 %}
+              <span class="rw-notif-badge">{{ unread_notifications }}</span>
+              {% endif %}
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end p-2" aria-labelledby="notifDropdown"
+                style="min-width:300px; max-width:340px;">
+              <li>
+                <span class="dropdown-item-text fw-bold mb-1" style="font-size:0.82rem;color:var(--rw-text-dim);">
+                  <i class="bi bi-bell me-1"></i>Notifications
+                </span>
+              </li>
+              <li><hr class="dropdown-divider my-1"></li>
+              {% if latest_notifications %}
+                {% for notif in latest_notifications %}
+                <li>
+                  <a class="dropdown-item py-2 {% if not notif.is_read %}fw-semibold{% endif %}"
+                     href="{% url 'reports:detail' notif.report.pk %}"
+                     style="white-space:normal;font-size:0.82rem;">
+                    {% if not notif.is_read %}
+                      <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--rw-primary);margin-right:6px;margin-bottom:1px;"></span>
+                    {% endif %}
+                    {{ notif.message|truncatechars:70 }}<br>
+                    <span style="font-size:0.72rem;color:var(--rw-text-muted);">{{ notif.created_at|timesince }} ago</span>
+                  </a>
+                </li>
+                {% endfor %}
+                <li><hr class="dropdown-divider my-1"></li>
+                <li>
+                  <form method="post" action="{% url 'reports:mark_notifications_read' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="dropdown-item text-center" style="font-size:0.8rem;color:var(--rw-primary-light);">
+                      Mark all read
+                    </button>
+                  </form>
+                </li>
+              {% else %}
+                <li>
+                  <span class="dropdown-item-text text-center" style="font-size:0.85rem;color:var(--rw-text-muted);padding:1rem 0;display:block;">
+                    <i class="bi bi-check-all d-block mb-1"></i>All caught up!
+                  </span>
+                </li>
+              {% endif %}
+            </ul>
+          </div>
+
+          <!-- User dropdown -->
+          <div class="dropdown">
+            <a class="nav-link d-flex align-items-center gap-2 px-1" href="#"
+               id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              {% if user.profile.avatar %}
+                <img src="{{ user.profile.avatar.url }}" alt="avatar" class="rw-user-avatar">
+              {% else %}
+                <div class="rw-user-avatar-placeholder">
+                  {{ user.first_name|first|upper|default:user.username|first|upper }}
+                </div>
+              {% endif %}
+              <span style="font-size:0.85rem;font-weight:700;color:var(--rw-text-dim);">
+                {{ user.first_name|default:user.username|truncatechars:12 }}
+              </span>
+              <i class="bi bi-chevron-down" style="font-size:0.65rem;color:var(--rw-text-muted);"></i>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+              <li>
+                <span class="dropdown-item-text" style="font-size:0.78rem;color:var(--rw-text-muted);">
+                  @{{ user.username }} &nbsp;·&nbsp;
+                  <span style="color:var(--rw-primary-light);">{{ user.profile.get_role_display }}</span>
+                </span>
+              </li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" href="{% url 'reports:dashboard' %}"><i class="bi bi-grid me-2"></i>Dashboard</a></li>
+              <li><a class="dropdown-item" href="{% url 'reports:profile_edit' %}"><i class="bi bi-person-gear me-2"></i>Edit Profile</a></li>
+              <li><a class="dropdown-item" href="{% url 'reports:subscription' %}"><i class="bi bi-stars me-2" style="color:var(--rw-amber);"></i>Subscription</a></li>
+              <li><a class="dropdown-item" href="{% url 'reports:submit' %}"><i class="bi bi-plus-circle me-2"></i>Submit Report</a></li>
+              {% if user.profile.is_city_admin or user.profile.is_super_admin %}
+              <li><a class="dropdown-item" href="{% url 'reports:csv_export' %}"><i class="bi bi-download me-2"></i>Export CSV</a></li>
+              {% endif %}
+              <li><hr class="dropdown-divider"></li>
+              <li>
+                <form method="post" action="{% url 'logout' %}" class="m-0">
+                  {% csrf_token %}
+                  <button type="submit" class="dropdown-item" style="color:var(--rw-danger);">
+                    <i class="bi bi-box-arrow-right me-2"></i>Sign Out
+                  </button>
+                </form>
+              </li>
+            </ul>
+          </div>
+
+        {% else %}
+          <a href="{% url 'login' %}" class="btn-rw-outline nav-link px-3 py-2" style="border-radius:10px;font-size:0.875rem;font-weight:600;">
+            Sign In
+          </a>
+          <a href="{% url 'reports:register' %}" class="btn-rw-submit nav-link px-3 py-2">
+            <i class="bi bi-person-plus me-1"></i>Join Free
+          </a>
+        {% endif %}
+
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- =========================================================
+     FLASH MESSAGES
+     ========================================================= -->
+{% if messages %}
+<div class="container mt-3" id="messages-container">
+  {% for message in messages %}
+  <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+    {{ message }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<!-- =========================================================
+     MAIN CONTENT
+     ========================================================= -->
+<main>
+  {% block content %}{% endblock %}
+</main>
+
+<!-- =========================================================
+     FOOTER
+     ========================================================= -->
+<footer class="rw-footer">
+  <div class="container">
+    <div class="row g-4">
+
+      <!-- Brand col -->
+      <div class="col-lg-4">
+        <div class="rw-footer-brand">
+          🚦 RoadWatch
+        </div>
+        <p class="rw-footer-tagline mb-3">
+          Community-powered road hazard reporting. Making roads safer, one report at a time.
+        </p>
+        <!-- Live stats -->
+        <div class="row g-2 mt-1">
+          <div class="col-6">
+            <div class="rw-footer-stat">
+              <span class="rw-footer-stat-num">{{ fixed_reports_total }}</span>
+              <span class="rw-footer-stat-label"><i class="bi bi-check-circle me-1"></i>Roads Fixed</span>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="rw-footer-stat">
+              <span class="rw-footer-stat-num">{{ total_reports }}</span>
+              <span class="rw-footer-stat-label"><i class="bi bi-flag me-1"></i>Reports Filed</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Platform links -->
+      <div class="col-6 col-lg-2 offset-lg-1">
+        <h6>Platform</h6>
+        <a href="{% url 'reports:index' %}"><i class="bi bi-map me-2"></i>Browse Reports</a>
+        {% if user.is_authenticated %}
+          <a href="{% url 'reports:submit' %}"><i class="bi bi-plus-circle me-2"></i>Submit Hazard</a>
+          <a href="{% url 'reports:dashboard' %}"><i class="bi bi-grid me-2"></i>My Dashboard</a>
+        {% else %}
+          <a href="{% url 'reports:register' %}"><i class="bi bi-person-plus me-2"></i>Join RoadWatch</a>
+          <a href="{% url 'login' %}"><i class="bi bi-box-arrow-in-right me-2"></i>Sign In</a>
+        {% endif %}
+        <a href="{% url 'reports:subscription' %}"><i class="bi bi-stars me-2" style="color:var(--rw-amber);"></i>Subscription</a>
+        <a href="{% url 'reports:leaderboard' %}"><i class="bi bi-trophy me-2"></i>Leaderboard</a>
+      </div>
+
+      <!-- Account links -->
+      <div class="col-6 col-lg-2">
+        <h6>Community</h6>
+        <a href="{% url 'reports:about' %}"><i class="bi bi-people me-2"></i>About Us</a>
+        <a href="{% url 'reports:contact' %}"><i class="bi bi-envelope me-2"></i>Contact</a>
+        <a href="{% url 'reports:index' %}?status=open"><i class="bi bi-circle me-2"></i>Open Hazards</a>
+        <a href="{% url 'reports:index' %}?status=fixed"><i class="bi bi-check-circle me-2"></i>Fixed Roads</a>
+        <a href="{% url 'reports:index' %}?severity=critical"><i class="bi bi-exclamation-circle me-2"></i>Critical Reports</a>
+      </div>
+
+      <!-- Account -->
+      <div class="col-6 col-lg-2">
+        <h6>Account</h6>
+        {% if user.is_authenticated %}
+          <a href="{% url 'reports:profile_edit' %}"><i class="bi bi-person-gear me-2"></i>Edit Profile</a>
+          {% if user.profile.is_city_admin or user.profile.is_super_admin %}
+            <a href="{% url 'reports:city_admin_dashboard' %}"><i class="bi bi-shield-check me-2"></i>Admin Panel</a>
+            <a href="{% url 'reports:csv_export' %}"><i class="bi bi-download me-2"></i>Export CSV</a>
+          {% endif %}
+          <form method="post" action="{% url 'logout' %}" class="m-0 p-0">
+            {% csrf_token %}
+            <button type="submit" class="border-0 bg-transparent p-0 d-flex align-items-center gap-2"
+                    style="color:var(--rw-text-dim);font-size:0.87rem;cursor:pointer;margin-bottom:0.48rem;">
+              <i class="bi bi-box-arrow-right"></i>Sign Out
+            </button>
+          </form>
+        {% else %}
+          <a href="{% url 'login' %}"><i class="bi bi-box-arrow-in-right me-2"></i>Sign In</a>
+          <a href="{% url 'reports:register' %}"><i class="bi bi-person-plus me-2"></i>Register</a>
+          <a href="{% url 'password_reset' %}"><i class="bi bi-key me-2"></i>Reset Password</a>
+        {% endif %}
+      </div>
+
+    </div>
+
+    <!-- Bottom bar -->
+    <div class="rw-footer-bottom">
+      <span>© 2026 RoadWatch — COMP-8347 Group 14, University of Windsor</span>
+      <span>
+        <i class="bi bi-shield-check me-1" style="color:var(--rw-accent-light);"></i>Making roads safer for everyone
+      </span>
+    </div>
+  </div>
+</footer>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Global JS -->
+<script>
+(function() {
+  // ── Declare ALL variables first (prevents Temporal Dead Zone crashes) ──
+  const THEME_KEY  = 'rw-theme';
+  const html       = document.documentElement;
+  const nav        = document.getElementById('mainNav');
+  const themeToggle= document.getElementById('themeToggle');
+  const themeIcon  = document.getElementById('themeIcon');
+  const loader     = document.getElementById('rw-loader');
+  const loaderEmoji= document.getElementById('loaderEmoji');
+  const loaderText = document.getElementById('loaderText');
+  const transition = document.getElementById('page-transition');
+
+  // ── 1. Navbar scroll ──────────────────────────────────────────────
+  function updateNavbar() {
+    if (!nav) return;
+    const dark = html.getAttribute('data-theme') === 'dark';
+    if (window.scrollY > 20) {
+      nav.classList.add('scrolled');
+      nav.style.background = dark ? 'rgba(5,7,15,0.98)' : 'rgba(248,250,252,0.98)';
+    } else {
+      nav.classList.remove('scrolled');
+      nav.style.background = '';
+    }
+  }
+  window.addEventListener('scroll', updateNavbar, { passive: true });
+
+  // ── 2. Theme toggle ──────────────────────────────────────────────
+  function applyTheme(theme) {
+    html.setAttribute('data-theme', theme);
+    try { localStorage.setItem(THEME_KEY, theme); } catch(e) {}
+    if (themeIcon) themeIcon.textContent = theme === 'dark' ? '☀️' : '🌙';
+    updateNavbar();
+  }
+
+  // Apply saved or default theme
+  var savedTheme = 'dark';
+  try { savedTheme = localStorage.getItem(THEME_KEY) || 'dark'; } catch(e) {}
+  applyTheme(savedTheme);
+
+  if (themeToggle) {
+    themeToggle.addEventListener('click', function() {
+      var current = html.getAttribute('data-theme');
+      applyTheme(current === 'dark' ? 'light' : 'dark');
+    });
+  }
+
+  // ── 3. Loading screen ────────────────────────────────────────────
+  const emojis = ['🚗','💥','🚧','🚦','⚠️','🛣️','🏗️','✅'];
+  const texts  = [
+    'Loading community reports…',
+    'Checking road conditions…',
+    'Fetching hazard alerts…',
+    'Analyzing severity scores…',
+    'Almost there…',
+  ];
+  var ei = 0, ti = 0;
+
+  var emojiInterval = setInterval(function() {
+    if (!loaderEmoji) return;
+    loaderEmoji.style.transform = 'scale(0)';
+    setTimeout(function() {
+      ei = (ei + 1) % emojis.length;
+      if (loaderEmoji) {
+        loaderEmoji.textContent = emojis[ei];
+        loaderEmoji.style.transform = '';
+        loaderEmoji.style.transition = 'transform 0.2s';
+      }
+    }, 150);
+  }, 380);
+
+  var textInterval = setInterval(function() {
+    ti = (ti + 1) % texts.length;
+    if (loaderText) loaderText.textContent = texts[ti];
+  }, 600);
+
+  var loaderDone = false;
+  function hideLoader() {
+    if (loaderDone) return;
+    loaderDone = true;
+    clearInterval(emojiInterval);
+    clearInterval(textInterval);
+    if (loader) {
+      if (loaderEmoji) loaderEmoji.textContent = '✅';
+      loader.classList.add('hidden');
+    }
+  }
+  // Hide after 1s (script runs after page parse), fallback on window.load
+  setTimeout(hideLoader, 1000);
+  window.addEventListener('load', hideLoader);
+
+  // ── 4. Page transition on link click ─────────────────────────────
+  document.addEventListener('click', function(e) {
+    var link = e.target.closest('a[href]');
+    if (!link) return;
+    var href = link.getAttribute('href');
+    if (!href || href.startsWith('#') || href.startsWith('mailto:') ||
+        href.startsWith('javascript:') || link.getAttribute('target') === '_blank') return;
+    if (link.getAttribute('data-bs-toggle')) return;
+    if (link.closest('form')) return;
+    e.preventDefault();
+    if (transition) {
+      transition.style.transformOrigin = 'bottom';
+      transition.style.transform = 'scaleY(1)';
+      transition.style.background = 'var(--rw-primary)';
+      transition.style.opacity = '0.3';
+    }
+    setTimeout(function() { window.location = href; }, 200);
+  });
+
+  // ── 5. Auto-dismiss flash messages ───────────────────────────────
+  document.querySelectorAll('#messages-container .alert').forEach(function(el) {
+    setTimeout(function() {
+      var bsAlert = bootstrap.Alert.getOrCreateInstance(el);
+      if (bsAlert) bsAlert.close();
+    }, 5000);
+  });
+
+  // ── 6. Report card click ─────────────────────────────────────────
+  document.querySelectorAll('.rw-report-card').forEach(function(card) {
+    card.addEventListener('click', function(e) {
+      var link = card.querySelector('a[href]');
+      if (link && !e.target.closest('button') && !e.target.closest('form')) {
+        card.classList.add('click-ripple');
+        setTimeout(function() { card.classList.remove('click-ripple'); }, 250);
+        setTimeout(function() { window.location = link.href; }, 200);
+      }
+    });
+  });
+
+})();
+</script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

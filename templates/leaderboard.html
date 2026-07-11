@@ -1,0 +1,240 @@
+{% extends 'base.html' %}
+{% block title %}Community Leaderboard{% endblock %}
+{% block meta_description %}RoadWatch leaderboard — top community members ranked by roads fixed, reports filed, and impact score.{% endblock %}
+
+{% block extra_head %}
+<style>
+@keyframes podiumRise { from{transform:scaleY(0);opacity:0} to{transform:scaleY(1);opacity:1} }
+@keyframes crownSpin  { 0%,100%{transform:rotate(-15deg) scale(1)} 50%{transform:rotate(15deg) scale(1.3)} }
+@keyframes rankSlide  { from{transform:translateX(-50px);opacity:0} to{transform:translateX(0);opacity:1} }
+@keyframes barGrow    { from{width:0!important} }
+@keyframes floatUp    { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+@keyframes pulseGold  { 0%,100%{box-shadow:0 0 0 0 rgba(245,158,11,0.45)} 50%{box-shadow:0 0 0 14px rgba(245,158,11,0)} }
+@keyframes shimmer    { 0%{background-position:-200% center} 100%{background-position:200% center} }
+
+.shimmer-text {
+  background:linear-gradient(90deg,#f59e0b 0%,#fde68a 30%,#f59e0b 60%,#fbbf24 100%);
+  background-size:200% auto;
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  animation:shimmer 2.5s linear infinite;
+}
+.lb-hero { background:var(--rw-grad-hero);padding:4rem 0 0;border-bottom:1px solid rgba(99,102,241,0.12);position:relative;overflow:hidden; }
+.lb-hero::before { content:'';position:absolute;inset:0;background:radial-gradient(ellipse 70% 60% at 10% 50%,rgba(245,158,11,0.1),transparent 65%),radial-gradient(ellipse 50% 50% at 85% 40%,rgba(99,102,241,0.1),transparent 65%);pointer-events:none; }
+
+.lb-podium { display:flex;align-items:flex-end;justify-content:center;gap:0;padding:0 1rem;margin-top:2.5rem; }
+.lb-podium-item { display:flex;flex-direction:column;align-items:center;position:relative; }
+.lb-podium-item.pos-2 { margin-right:-10px; }
+.lb-podium-item.pos-3 { margin-left:-10px; }
+.lb-podium-item.pos-1 { z-index:3; }
+
+.lb-avatar-pod { border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;color:#fff;margin-bottom:0.5rem;position:relative;z-index:2;border:3px solid transparent;transition:transform 0.3s; }
+.pos-1 .lb-avatar-pod { width:84px;height:84px;font-size:1.8rem;background:linear-gradient(135deg,#f59e0b,#fbbf24);border-color:#f59e0b;animation:pulseGold 2.5s ease-in-out infinite; }
+.pos-2 .lb-avatar-pod { width:68px;height:68px;font-size:1.4rem;background:linear-gradient(135deg,#6366f1,#818cf8);border-color:#6366f1;box-shadow:0 8px 24px rgba(99,102,241,0.3); }
+.pos-3 .lb-avatar-pod { width:68px;height:68px;font-size:1.4rem;background:linear-gradient(135deg,#fb923c,#f97316);border-color:#fb923c;box-shadow:0 8px 24px rgba(251,146,60,0.3); }
+.lb-avatar-pod:hover { transform:scale(1.12) translateY(-4px); }
+.lb-crown { position:absolute;top:-24px;left:50%;transform:translateX(-50%);font-size:1.6rem;animation:crownSpin 3s ease-in-out infinite; }
+
+.lb-pod-name  { font-size:0.85rem;font-weight:800;color:var(--rw-text);text-align:center;margin-bottom:0.2rem;white-space:nowrap;max-width:110px;overflow:hidden;text-overflow:ellipsis; }
+.lb-pod-sub   { font-size:0.7rem;color:var(--rw-text-muted);text-align:center;margin-bottom:0.4rem; }
+.lb-pod-score { font-size:1.1rem;font-weight:900;text-align:center;margin-bottom:0.5rem; }
+.pos-1 .lb-pod-score { color:#f59e0b;font-size:1.3rem; }
+.pos-2 .lb-pod-score { color:#a5b4fc; }
+.pos-3 .lb-pod-score { color:#fb923c; }
+
+.lb-pod-base { border-radius:14px 14px 0 0;transform-origin:bottom;animation:podiumRise 0.9s cubic-bezier(0.34,1.56,0.64,1) both;display:flex;align-items:flex-start;justify-content:center;padding-top:0.65rem;font-size:1.5rem; }
+.pos-1 .lb-pod-base { width:115px;height:115px;background:linear-gradient(180deg,rgba(245,158,11,0.22),rgba(245,158,11,0.07));border:1px solid rgba(245,158,11,0.38);animation-delay:0.1s; }
+.pos-2 .lb-pod-base { width:98px;height:80px;background:linear-gradient(180deg,rgba(99,102,241,0.18),rgba(99,102,241,0.06));border:1px solid rgba(99,102,241,0.28);animation-delay:0.2s; }
+.pos-3 .lb-pod-base { width:98px;height:60px;background:linear-gradient(180deg,rgba(251,146,60,0.15),rgba(251,146,60,0.05));border:1px solid rgba(251,146,60,0.22);animation-delay:0.3s; }
+
+.lb-row { background:var(--rw-bg-card);border:1px solid var(--rw-border);border-radius:16px;padding:0.85rem 1rem;display:flex;align-items:center;gap:0.85rem;transition:all 0.3s cubic-bezier(0.4,0,0.2,1);animation:rankSlide 0.4s cubic-bezier(0.4,0,0.2,1) both;position:relative;overflow:hidden;cursor:default; }
+.lb-row::before { content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:3px 0 0 3px;background:var(--rw-grad);transform:scaleY(0);transition:transform 0.3s; }
+.lb-row:hover { transform:translateX(10px) scale(1.01);border-color:rgba(99,102,241,0.35);box-shadow:0 8px 30px rgba(0,0,0,0.25); }
+.lb-row:hover::before { transform:scaleY(1); }
+.lb-row.top3 { border-color:rgba(245,158,11,0.25); }
+.lb-row.top3:hover { border-color:rgba(245,158,11,0.5);box-shadow:0 8px 28px rgba(245,158,11,0.12); }
+
+.lb-rank { width:38px;height:38px;border-radius:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:0.88rem;font-weight:900; }
+.lb-rank.gold   { background:rgba(245,158,11,0.18);color:#f59e0b;font-size:1.25rem;animation:floatUp 2s ease-in-out infinite; }
+.lb-rank.silver { background:rgba(148,163,184,0.15);color:#94a3b8;font-size:1.1rem; }
+.lb-rank.bronze { background:rgba(251,146,60,0.15);color:#fb923c;font-size:1.1rem; }
+.lb-rank.other  { background:rgba(99,102,241,0.1);color:var(--rw-primary-light); }
+
+.lb-av { width:42px;height:42px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:900;color:#fff;transition:transform 0.3s; }
+.lb-row:hover .lb-av { transform:scale(1.15) rotate(6deg); }
+.lb-name  { font-weight:800;font-size:0.93rem;color:var(--rw-text);margin-bottom:0.08rem; }
+.lb-sub   { font-size:0.72rem;color:var(--rw-text-muted); }
+.lb-bar-wrap { flex:1;background:rgba(255,255,255,0.05);border-radius:6px;height:5px;overflow:hidden;min-width:40px; }
+[data-theme="light"] .lb-bar-wrap { background:rgba(0,0,0,0.08); }
+.lb-bar-fill { height:100%;border-radius:6px;animation:barGrow 1s cubic-bezier(0.4,0,0.2,1) both; }
+.lb-stat { text-align:center;flex-shrink:0;min-width:40px; }
+.lb-stat-n { font-size:0.92rem;font-weight:900;line-height:1; }
+.lb-stat-l { font-size:0.6rem;color:var(--rw-text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-top:0.1rem; }
+.lb-pill { padding:0.28rem 0.7rem;border-radius:20px;font-weight:900;font-size:0.85rem;background:linear-gradient(135deg,rgba(99,102,241,0.14),rgba(16,185,129,0.1));border:1px solid rgba(99,102,241,0.22);color:var(--rw-primary-light);white-space:nowrap;transition:all 0.3s; }
+.lb-row.top3 .lb-pill { background:linear-gradient(135deg,rgba(245,158,11,0.16),rgba(251,146,60,0.1));border-color:rgba(245,158,11,0.28);color:#f59e0b; }
+.lb-row:hover .lb-pill { transform:scale(1.1); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="lb-hero">
+  <div class="container position-relative text-center">
+    <div style="display:inline-flex;align-items:center;gap:0.45rem;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.25);border-radius:20px;padding:0.3rem 0.9rem;font-size:0.72rem;font-weight:800;color:var(--rw-amber-light);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:0.9rem;">
+      <i class="bi bi-trophy-fill"></i>Community Leaderboard
+    </div>
+    <h1 style="font-size:clamp(2rem,5vw,3.4rem);font-weight:900;letter-spacing:-1.5px;margin-bottom:0.75rem;">
+      Top <span class="shimmer-text">Road Warriors</span>
+    </h1>
+    <p style="font-size:1rem;color:var(--rw-text-dim);max-width:480px;margin:0 auto 1.75rem;line-height:1.75;">Citizens making roads safer. Ranked by reports filed, roads fixed, and community votes.</p>
+    <div class="d-flex gap-3 justify-content-center flex-wrap mb-4">
+      <div style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.22);border-radius:12px;padding:0.5rem 1rem;font-size:0.82rem;color:var(--rw-accent-light);"><i class="bi bi-check-circle-fill me-1"></i>{{ platform_fixed }} Fixed</div>
+      <div style="background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.22);border-radius:12px;padding:0.5rem 1rem;font-size:0.82rem;color:var(--rw-primary-light);"><i class="bi bi-flag-fill me-1"></i>{{ platform_total }} Reports</div>
+      <div style="background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.22);border-radius:12px;padding:0.5rem 1rem;font-size:0.82rem;color:var(--rw-amber-light);"><i class="bi bi-bullseye me-1"></i>{{ resolution_rate }}% Resolved</div>
+    </div>
+
+    {% if leaderboard %}
+    <div class="lb-podium">
+      {% if leaderboard|length >= 2 %}{% with e=leaderboard.1 %}
+      <div class="lb-podium-item pos-2">
+        <div class="lb-avatar-pod">{{ e.user.first_name|first|upper }}</div>
+        <div class="lb-pod-name">{{ e.user.get_full_name|default:e.user.username }}</div>
+        <div class="lb-pod-sub">{{ e.fixed }} fixed</div>
+        <div class="lb-pod-score">{{ e.score }} pts</div>
+        <div class="lb-pod-base">🥈</div>
+      </div>
+      {% endwith %}{% endif %}
+      {% with e=leaderboard.0 %}
+      <div class="lb-podium-item pos-1">
+        <div class="lb-crown">👑</div>
+        <div class="lb-avatar-pod">{{ e.user.first_name|first|upper }}</div>
+        <div class="lb-pod-name" style="font-size:0.95rem;">{{ e.user.get_full_name|default:e.user.username }}</div>
+        <div class="lb-pod-sub">{{ e.fixed }} fixed &middot; {{ e.total }} reports</div>
+        <div class="lb-pod-score">{{ e.score }} pts</div>
+        <div class="lb-pod-base">🥇</div>
+      </div>
+      {% endwith %}
+      {% if leaderboard|length >= 3 %}{% with e=leaderboard.2 %}
+      <div class="lb-podium-item pos-3">
+        <div class="lb-avatar-pod">{{ e.user.first_name|first|upper }}</div>
+        <div class="lb-pod-name">{{ e.user.get_full_name|default:e.user.username }}</div>
+        <div class="lb-pod-sub">{{ e.fixed }} fixed</div>
+        <div class="lb-pod-score">{{ e.score }} pts</div>
+        <div class="lb-pod-base">🥉</div>
+      </div>
+      {% endwith %}{% endif %}
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<section class="rw-section">
+  <div class="container">
+    <div class="row g-4">
+      <div class="col-lg-8">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <div class="rw-section-title" style="margin:0;flex:1;"><i class="bi bi-list-ol" style="color:var(--rw-primary-light);"></i>Full Rankings</div>
+          <span style="font-size:0.73rem;color:var(--rw-text-muted);">Fixed×3 + Resolved×2 + Reports×1 + Upvotes×2 + Critical×1</span>
+        </div>
+        {% if leaderboard %}
+        <div class="d-flex flex-column gap-2">
+          {% for entry in leaderboard %}
+          <div class="lb-row {% if forloop.counter <= 3 %}top3{% endif %}" style="animation-delay:{{ forloop.counter0 }}00ms;flex-wrap:wrap;">
+            <div class="lb-rank {% if forloop.counter == 1 %}gold{% elif forloop.counter == 2 %}silver{% elif forloop.counter == 3 %}bronze{% else %}other{% endif %}">
+              {% if forloop.counter == 1 %}🥇{% elif forloop.counter == 2 %}🥈{% elif forloop.counter == 3 %}🥉{% else %}{{ forloop.counter }}{% endif %}
+            </div>
+            <div class="lb-av" style="background:{% if forloop.counter == 1 %}linear-gradient(135deg,#f59e0b,#fbbf24){% elif forloop.counter == 2 %}linear-gradient(135deg,#6366f1,#818cf8){% elif forloop.counter == 3 %}linear-gradient(135deg,#fb923c,#f97316){% else %}var(--rw-grad){% endif %};">
+              {{ entry.user.first_name|first|upper }}
+            </div>
+            <!-- Name + score bar -->
+            <div style="flex:1;min-width:140px;">
+              <div class="lb-name">{{ entry.user.get_full_name|default:entry.user.username }}</div>
+              <div class="lb-sub">@{{ entry.user.username }}{% if entry.user.profile.city %} &middot; {{ entry.user.profile.city }}{% endif %} &middot; {{ entry.cities }} city{% if entry.cities != 1 %}s{% endif %}</div>
+              <!-- Multi-segment score bar: fixed=green, resolved=teal, in_progress=blue, open=gray -->
+              <div style="display:flex;height:5px;border-radius:6px;overflow:hidden;margin-top:6px;gap:1px;">
+                {% if entry.total > 0 %}
+                <div style="width:{% widthratio entry.fixed entry.total 100 %}%;background:#10b981;animation:barGrow 0.9s both;animation-delay:{{ forloop.counter0 }}00ms;transition:width 0.5s;" title="Fixed"></div>
+                <div style="width:{% widthratio entry.resolved entry.total 100 %}%;background:#06b6d4;animation:barGrow 0.9s both;animation-delay:{{ forloop.counter0 }}00ms;" title="Resolved"></div>
+                <div style="width:{% widthratio entry.in_progress entry.total 100 %}%;background:#6366f1;animation:barGrow 0.9s both;animation-delay:{{ forloop.counter0 }}00ms;" title="In Progress"></div>
+                <div style="width:{% widthratio entry.under_review entry.total 100 %}%;background:#f59e0b;animation:barGrow 0.9s both;animation-delay:{{ forloop.counter0 }}00ms;" title="Under Review"></div>
+                <div style="width:{% widthratio entry.open_count entry.total 100 %}%;background:rgba(148,163,184,0.4);animation:barGrow 0.9s both;animation-delay:{{ forloop.counter0 }}00ms;" title="Open"></div>
+                {% endif %}
+              </div>
+              <!-- Bar legend -->
+              <div style="display:flex;gap:0.5rem;margin-top:4px;flex-wrap:wrap;">
+                <span style="font-size:0.58rem;color:#10b981;">&#9632; Fixed</span>
+                <span style="font-size:0.58rem;color:#06b6d4;">&#9632; Resolved</span>
+                <span style="font-size:0.58rem;color:#6366f1;">&#9632; In Progress</span>
+                <span style="font-size:0.58rem;color:#f59e0b;">&#9632; Review</span>
+                <span style="font-size:0.58rem;color:#94a3b8;">&#9632; Open</span>
+              </div>
+            </div>
+            <!-- Stats columns -->
+            <div class="lb-stat"><div class="lb-stat-n" style="color:#10b981;">{{ entry.fixed }}</div><div class="lb-stat-l">Fixed</div></div>
+            <div class="lb-stat"><div class="lb-stat-n" style="color:#06b6d4;">{{ entry.resolved }}</div><div class="lb-stat-l">Resolved</div></div>
+            <div class="lb-stat"><div class="lb-stat-n" style="color:#6366f1;">{{ entry.in_progress }}</div><div class="lb-stat-l">Progress</div></div>
+            <div class="lb-stat"><div class="lb-stat-n" style="color:#ef4444;">{{ entry.critical }}</div><div class="lb-stat-l">Critical</div></div>
+            <div class="lb-stat"><div class="lb-stat-n" style="color:#f97316;">{{ entry.high }}</div><div class="lb-stat-l">High</div></div>
+            <div class="lb-stat"><div class="lb-stat-n" style="color:var(--rw-primary-light);">{{ entry.total }}</div><div class="lb-stat-l">Total</div></div>
+            <div class="lb-stat"><div class="lb-stat-n" style="color:#f59e0b;">{{ entry.upvotes }}</div><div class="lb-stat-l">Upvotes</div></div>
+            <div class="lb-stat"><div class="lb-stat-n" style="color:var(--rw-text-muted);">{{ entry.comments }}</div><div class="lb-stat-l">Comments</div></div>
+            <!-- Resolution rate badge -->
+            <div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;min-width:48px;">
+              <div style="font-size:0.95rem;font-weight:900;color:{% if entry.res_rate >= 70 %}#10b981{% elif entry.res_rate >= 40 %}#f59e0b{% else %}#ef4444{% endif %};">{{ entry.res_rate }}%</div>
+              <div style="font-size:0.58rem;color:var(--rw-text-muted);text-transform:uppercase;letter-spacing:0.4px;">Res. Rate</div>
+            </div>
+            <div class="lb-pill">{{ entry.score }} pts</div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="rw-empty"><i class="bi bi-people rw-empty-icon"></i><p>No reports yet.</p></div>
+        {% endif %}
+      </div>
+
+      <div class="col-lg-4">
+        <div class="rw-chart-card mb-3">
+          <div class="rw-chart-title"><i class="bi bi-mortarboard-fill" style="color:var(--rw-amber-light);"></i>Group 14 &mdash; COMP-8347</div>
+          <p style="font-size:0.78rem;color:var(--rw-text-muted);margin-bottom:1rem;line-height:1.55;">University of Windsor &middot; Masters of Applied Computing &middot; Summer 2026</p>
+          {% for entry in leaderboard %}
+            {% if entry.user.username == 'janitha' or entry.user.username == 'lisa' or entry.user.username == 'shiv' or entry.user.username == 'dhruv' or entry.user.username == 'hiten' %}
+            <div style="display:flex;align-items:center;gap:0.65rem;padding:0.52rem 0;border-bottom:1px solid var(--rw-border);">
+              <div style="width:32px;height:32px;border-radius:50%;background:var(--rw-grad);display:flex;align-items:center;justify-content:center;font-size:0.82rem;font-weight:900;color:#fff;flex-shrink:0;">{{ entry.user.first_name|first|upper }}</div>
+              <div style="flex:1;min-width:0;">
+                <div style="font-size:0.84rem;font-weight:700;color:var(--rw-text);">{{ entry.user.get_full_name }}</div>
+                <div style="font-size:0.7rem;color:var(--rw-text-muted);">{{ entry.total }} reports &middot; {{ entry.fixed }} fixed</div>
+              </div>
+              <div style="font-size:0.8rem;font-weight:900;color:var(--rw-primary-light);">{{ entry.score }}pts</div>
+            </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+        <div class="rw-chart-card mb-3">
+          <div class="rw-chart-title"><i class="bi bi-calculator" style="color:var(--rw-accent-light);"></i>Score Formula</div>
+          <div class="d-flex flex-column gap-2">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:0.48rem 0.75rem;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.15);border-radius:10px;"><span style="font-size:0.81rem;color:var(--rw-text-dim);">&#x2705; Road Fixed</span><span style="font-size:0.88rem;font-weight:900;color:var(--rw-accent-light);">x3 pts</span></div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:0.48rem 0.75rem;background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.15);border-radius:10px;"><span style="font-size:0.81rem;color:var(--rw-text-dim);">&#x1F6A9; Report Filed</span><span style="font-size:0.88rem;font-weight:900;color:var(--rw-primary-light);">x1 pt</span></div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:0.48rem 0.75rem;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.15);border-radius:10px;"><span style="font-size:0.81rem;color:var(--rw-text-dim);">&#x1F44D; Upvote Received</span><span style="font-size:0.88rem;font-weight:900;color:var(--rw-amber-light);">x2 pts</span></div>
+          </div>
+        </div>
+        <div class="rw-chart-card">
+          <div class="rw-chart-title"><i class="bi bi-bar-chart-fill" style="color:#fb7185;"></i>Platform Stats</div>
+          <div class="d-flex flex-column gap-2">
+            <div class="rw-progress-row"><span class="rw-progress-label">Fixed ✅</span><div class="rw-progress-bar-wrap"><div class="rw-progress-bar-fill" style="width:{% if platform_total > 0 %}{% widthratio platform_fixed platform_total 100 %}{% else %}0{% endif %}%;background:linear-gradient(90deg,#10b981,#34d399);"></div></div><span class="rw-progress-count">{{ platform_fixed }}</span></div>
+            <div class="rw-progress-row"><span class="rw-progress-label">Total 📊</span><div class="rw-progress-bar-wrap"><div class="rw-progress-bar-fill" style="width:100%;background:linear-gradient(90deg,#6366f1,#818cf8);"></div></div><span class="rw-progress-count">{{ platform_total }}</span></div>
+            <div style="padding-top:0.6rem;border-top:1px solid var(--rw-border);text-align:center;">
+              <div style="font-size:2rem;font-weight:900;background:var(--rw-grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">{{ resolution_rate }}%</div>
+              <div style="font-size:0.7rem;color:var(--rw-text-muted);text-transform:uppercase;letter-spacing:0.6px;">Resolution Rate</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.querySelectorAll('.lb-row').forEach(function(row,i){row.style.animationDelay=(i*75)+'ms';});
+document.querySelectorAll('.lb-bar-fill').forEach(function(bar,i){bar.style.animationDelay=(350+i*75)+'ms';bar.style.animationDuration='0.85s';});
+</script>
+{% endblock %}
