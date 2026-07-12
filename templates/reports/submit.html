@@ -1,0 +1,214 @@
+{% extends 'base.html' %}
+{% block title %}Submit Hazard Report{% endblock %}
+
+{% block content %}
+<div class="rw-page-header">
+  <div class="container">
+    <div class="d-flex align-items-center gap-3">
+      <a href="{% url 'reports:index' %}" class="btn btn-rw-outline" style="padding:0.4rem 0.85rem;font-size:0.85rem;">
+        <i class="bi bi-arrow-left"></i>
+      </a>
+      <div>
+        <h1 class="mb-0" style="font-size:1.6rem;">Submit Hazard Report</h1>
+        <p class="mb-0" style="font-size:0.85rem;color:var(--rw-text-muted);">
+          Report a road hazard in your community. AI will automatically score severity.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<section class="rw-section pt-3">
+  <div class="container">
+    <div class="row g-4">
+
+      <!-- Main form -->
+      <div class="col-lg-8">
+        <form method="post" enctype="multipart/form-data" novalidate id="submit-form">
+          {% csrf_token %}
+
+          <!-- Section 1: Hazard Details -->
+          <div class="rw-form-card">
+            <div class="rw-form-section-title">
+              <i class="bi bi-exclamation-triangle"></i>Hazard Details
+            </div>
+
+            <div class="mb-3">
+              <label for="{{ form.title.id_for_label }}">Report Title <span style="color:var(--rw-danger);">*</span></label>
+              {{ form.title }}
+              {% if form.title.errors %}<div class="invalid-feedback d-block">{{ form.title.errors.0 }}</div>{% endif %}
+            </div>
+
+            <div class="row g-3 mb-3">
+              <div class="col-sm-6">
+                <label for="{{ form.hazard_type.id_for_label }}">Hazard Type <span style="color:var(--rw-danger);">*</span></label>
+                {{ form.hazard_type }}
+                {% if form.hazard_type.errors %}<div class="invalid-feedback d-block">{{ form.hazard_type.errors.0 }}</div>{% endif %}
+              </div>
+              <div class="col-sm-6">
+                <label for="{{ form.severity.id_for_label }}">Severity Level <span style="color:var(--rw-danger);">*</span></label>
+                {{ form.severity }}
+                {% if form.severity.errors %}<div class="invalid-feedback d-block">{{ form.severity.errors.0 }}</div>{% endif %}
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="{{ form.description.id_for_label }}">Description <span style="color:var(--rw-danger);">*</span></label>
+              {{ form.description }}
+              {% if form.description.errors %}<div class="invalid-feedback d-block">{{ form.description.errors.0 }}</div>{% endif %}
+              <div style="font-size:0.78rem;color:var(--rw-text-muted);margin-top:0.3rem;">
+                Be specific — include size, exact location, any injuries or damage caused.
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 2: Location -->
+          <div class="rw-form-card">
+            <div class="rw-form-section-title">
+              <i class="bi bi-geo-alt"></i>Location
+            </div>
+
+            <div class="row g-3 mb-3">
+              <div class="col-sm-6">
+                <label for="{{ form.city.id_for_label }}">City <span style="color:var(--rw-danger);">*</span></label>
+                {{ form.city }}
+                {% if form.city.errors %}<div class="invalid-feedback d-block">{{ form.city.errors.0 }}</div>{% endif %}
+              </div>
+              <div class="col-sm-6">
+                <label for="{{ form.street.id_for_label }}">Street / Intersection <span style="color:var(--rw-danger);">*</span></label>
+                {{ form.street }}
+                {% if form.street.errors %}<div class="invalid-feedback d-block">{{ form.street.errors.0 }}</div>{% endif %}
+              </div>
+            </div>
+
+            <div class="row g-3">
+              <div class="col-sm-6">
+                <label for="{{ form.latitude.id_for_label }}">
+                  Latitude <span style="font-size:0.75rem;color:var(--rw-text-muted);font-weight:400;">(optional)</span>
+                </label>
+                {{ form.latitude }}
+              </div>
+              <div class="col-sm-6">
+                <label for="{{ form.longitude.id_for_label }}">
+                  Longitude <span style="font-size:0.75rem;color:var(--rw-text-muted);font-weight:400;">(optional)</span>
+                </label>
+                {{ form.longitude }}
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 3: Photos -->
+          <div class="rw-form-card">
+            <div class="rw-form-section-title">
+              <i class="bi bi-images"></i>Photos
+              <span style="font-size:0.72rem;font-weight:400;text-transform:none;letter-spacing:0;color:var(--rw-text-muted);">
+                — Up to 3 photos (JPG, PNG, WEBP)
+              </span>
+            </div>
+
+            <div class="row g-3">
+              <div class="col-12 col-sm-4">
+                <label>Photo 1</label>
+                <input type="file" name="photo1" id="id_photo1" class="form-control rw-file-input" accept="image/*" onchange="previewPhoto(this, 'preview1')">
+                <img id="preview1" class="rw-photo-preview mt-2" alt="Preview 1">
+              </div>
+              <div class="col-12 col-sm-4">
+                <label>Photo 2</label>
+                <input type="file" name="photo2" id="id_photo2" class="form-control rw-file-input" accept="image/*" onchange="previewPhoto(this, 'preview2')">
+                <img id="preview2" class="rw-photo-preview mt-2" alt="Preview 2">
+              </div>
+              <div class="col-12 col-sm-4">
+                <label>Photo 3</label>
+                <input type="file" name="photo3" id="id_photo3" class="form-control rw-file-input" accept="image/*" onchange="previewPhoto(this, 'preview3')">
+                <img id="preview3" class="rw-photo-preview mt-2" alt="Preview 3">
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 4: Document (optional) -->
+          <div class="rw-form-card">
+            <div class="rw-form-section-title">
+              <i class="bi bi-paperclip"></i>Supporting Document
+              <span style="font-size:0.72rem;font-weight:400;text-transform:none;letter-spacing:0;color:var(--rw-text-muted);">
+                — optional (PDF, DOCX, etc.)
+              </span>
+            </div>
+            <label for="{{ form.document.id_for_label }}">Attach Document</label>
+            {{ form.document }}
+            <div style="font-size:0.78rem;color:var(--rw-text-muted);margin-top:0.3rem;">
+              {{ form.document.help_text }}
+            </div>
+          </div>
+
+          <!-- Submit -->
+          <div class="d-flex gap-3">
+            <button type="submit" class="btn btn-rw-primary px-5 py-3" id="submit-btn">
+              <i class="bi bi-send me-2"></i>Submit Report
+            </button>
+            <a href="{% url 'reports:index' %}" class="btn btn-rw-outline py-3 px-4">Cancel</a>
+          </div>
+        </form>
+      </div>
+
+      <!-- Sidebar: tips -->
+      <div class="col-lg-4">
+        <div class="rw-form-card" style="position:sticky;top:140px;">
+          <div class="rw-form-section-title">
+            <i class="bi bi-lightbulb"></i>Reporting Tips
+          </div>
+          <ul class="list-unstyled" style="font-size:0.85rem;color:var(--rw-text-dim);">
+            <li class="mb-2 d-flex gap-2">
+              <i class="bi bi-check-circle-fill mt-1" style="color:var(--rw-success);flex-shrink:0;"></i>
+              Be as specific as possible about location — include nearest intersection or landmark.
+            </li>
+            <li class="mb-2 d-flex gap-2">
+              <i class="bi bi-check-circle-fill mt-1" style="color:var(--rw-success);flex-shrink:0;"></i>
+              Photos significantly improve AI scoring accuracy and speed up repairs.
+            </li>
+            <li class="mb-2 d-flex gap-2">
+              <i class="bi bi-check-circle-fill mt-1" style="color:var(--rw-success);flex-shrink:0;"></i>
+              Choose <strong>Critical</strong> severity only for immediate safety dangers.
+            </li>
+            <li class="mb-2 d-flex gap-2">
+              <i class="bi bi-check-circle-fill mt-1" style="color:var(--rw-success);flex-shrink:0;"></i>
+              The duplicate detector will warn you if a similar report already exists nearby.
+            </li>
+          </ul>
+          <hr class="rw-divider">
+          <div style="font-size:0.78rem;color:var(--rw-text-muted);">
+            <i class="bi bi-robot me-1" style="color:var(--rw-blue);"></i>
+            <strong style="color:var(--rw-text);">AI Scoring</strong> will automatically rate this report 1–10 after submission to help city crews prioritise repairs.
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  function previewPhoto(input, previewId) {
+    var preview = document.getElementById(previewId);
+    if (input.files && input.files[0]) {
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        preview.src = e.target.result;
+        preview.style.display = 'block';
+      };
+      reader.readAsDataURL(input.files[0]);
+    } else {
+      preview.style.display = 'none';
+      preview.src = '';
+    }
+  }
+
+  // Prevent double-submit
+  document.getElementById('submit-form').addEventListener('submit', function() {
+    var btn = document.getElementById('submit-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="rw-spinner me-2"></span>Submitting…';
+  });
+</script>
+{% endblock %}
